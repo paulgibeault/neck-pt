@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Neck PT Companion</title>
+  
+  <!-- Mobile & PWA optimization -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0d9488">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header>
+      <div class="brand-section">
+        <div class="brand-icon">PT</div>
+        <h1>Neck PT Companion</h1>
+      </div>
+      <div class="header-controls">
+        <button id="btn-toggle-stats" class="icon-btn" title="View Statistics & History">
+          <!-- Stats SVG Icon -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </button>
+        <button id="btn-toggle-theme" class="icon-btn" title="Toggle Light/Dark Theme">
+          <!-- Sun/Moon SVG Icon -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Screens Routing Area -->
+    <main>
+      
+      <!-- SCREEN 1: DASHBOARD -->
+      <section id="screen-dashboard" class="screen active">
+        <!-- Progress Circular Card -->
+        <div class="progress-card">
+          <div class="progress-summary">
+            <div class="progress-stats-box">
+              <div id="dashboard-welcome-title" class="progress-title">Good Morning</div>
+              <div id="dashboard-welcome-desc" class="progress-desc">Ready to restore your neck mobility? Let's complete your daily routine.</div>
+            </div>
+            <div class="progress-radial">
+              <svg viewBox="0 0 36 36">
+                <circle class="circle-bg" cx="18" cy="18" r="14"></circle>
+                <circle id="radial-progress-fill" class="circle-progress" cx="18" cy="18" r="14" stroke-dasharray="88 88" stroke-dashoffset="88"></circle>
+              </svg>
+              <div class="progress-text">
+                <span id="radial-progress-text" class="progress-num">0%</span>
+                <div class="progress-label">Done</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="quick-stats-row">
+            <div class="stat-item">
+              <div id="stat-completed" class="stat-val">0/11</div>
+              <div class="stat-label">Exercises</div>
+            </div>
+            <div class="stat-item">
+              <div id="stat-streak" class="stat-val">0</div>
+              <div class="stat-label">Day Streak</div>
+            </div>
+            <div class="stat-item">
+              <div id="stat-time" class="stat-val">0m</div>
+              <div class="stat-label">Active Time</div>
+            </div>
+          </div>
+
+          <button id="btn-start-session" class="btn-primary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            Start Routine Session
+          </button>
+        </div>
+
+        <!-- Exercise Routine Subtitle -->
+        <div class="section-title-row">
+          <span class="section-title">Your Routine Exercises</span>
+          <span id="routine-daily-dosage" class="ex-meta">1 session per day</span>
+        </div>
+
+        <!-- Exercises List Grid -->
+        <div id="exercises-container" class="exercise-list">
+          <!-- Dynamic cards injected via JS -->
+        </div>
+      </section>
+
+      <!-- SCREEN 5: EXERCISE SUMMARY PREVIEW -->
+      <section id="screen-summary" class="screen">
+        <!-- Top Nav Stepper -->
+        <div class="routine-stepper-header">
+          <button id="btn-summary-back" class="icon-btn" title="Back to Dashboard">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <span id="summary-badge" class="ex-badge badge-stretch">Stretch</span>
+          <span id="summary-step-counter" class="step-indicator">Ex 1 of 11</span>
+        </div>
+
+        <div class="routine-grid">
+          <!-- Left Column: Visual demonstration preview -->
+          <div class="routine-visual-card">
+            <div class="canvas-visual-wrapper">
+              <img id="summary-preview-illustration" src="" alt="Exercise Demonstration Preview">
+            </div>
+          </div>
+
+          <!-- Right Column: Details & Play button -->
+          <div class="routine-tracking-card">
+            <div class="ex-info-block">
+              <h2 id="summary-title" class="ex-info-title">Seated Upper Trapezius Stretch</h2>
+              <div id="summary-dosage-pills" class="dosage-pills-row">
+                <!-- Dosage info dynamically added -->
+              </div>
+            </div>
+
+            <!-- Handwritten note -->
+            <div id="summary-clinician-note" class="clinician-handwritten-note">
+              3-4" holds
+            </div>
+
+            <!-- Setup/Movement details -->
+            <div class="routine-instruction-details">
+              <div class="detail-section">
+                <span class="detail-label">Setup</span>
+                <p id="summary-detail-setup" class="detail-content">Begin sitting upright...</p>
+              </div>
+              <div class="detail-section">
+                <span class="detail-label">Movement</span>
+                <p id="summary-detail-movement" class="detail-content">Rotate head...</p>
+              </div>
+              <div id="summary-detail-tip-box" class="detail-section">
+                <span class="detail-label">Clinician Tip</span>
+                <p id="summary-detail-tip" class="detail-content">Back straight...</p>
+              </div>
+            </div>
+
+            <!-- Start Exercise Play Button -->
+            <button id="btn-summary-play" class="btn-primary" style="margin-top: 12px; width: 100%;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              Start Guided Sets (Play)
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: ACTIVE ROUTINE STEPPER -->
+      <section id="screen-routine" class="screen">
+        <!-- Top Nav Stepper -->
+        <div class="routine-stepper-header">
+          <button id="btn-exit-routine" class="icon-btn" title="Exit Routine Session">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+          <div class="routine-progress-bar-container">
+            <div id="routine-progress-bar-fill" class="routine-progress-bar-fill"></div>
+          </div>
+          <span id="routine-step-counter" class="step-indicator">Ex 1 of 11</span>
+        </div>
+
+        <!-- Main Routine Work Grid -->
+        <div class="routine-grid">
+          
+          <!-- Column 1: Visual Demonstration -->
+          <div class="routine-visual-card">
+            <!-- View Original Toggle -->
+            <button id="btn-toggle-original-photo" class="original-toggle-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              View Original Printout
+            </button>
+
+            <!-- Interactive Illustration Canvas -->
+            <div class="canvas-visual-wrapper">
+              <img id="routine-active-illustration" src="" alt="Exercise Demonstration">
+            </div>
+
+            <!-- Carousel Scrubbers -->
+            <div id="routine-frame-dots-container" class="frame-indicator-bar">
+              <!-- Dots injected dynamically -->
+            </div>
+          </div>
+
+          <!-- Column 2: Tracking and Text Controls -->
+          <div class="routine-tracking-card">
+            <!-- Info Header -->
+            <div class="ex-info-block">
+              <div class="ex-info-category">
+                <span id="routine-active-category" class="ex-badge badge-stretch">Stretch</span>
+                <span id="routine-guided-side" class="ex-badge badge-nerve-glide" style="display:none; font-weight:700;">Left Side</span>
+              </div>
+              <h2 id="routine-active-title" class="ex-info-title">Seated Upper Trapezius Stretch</h2>
+              <div id="routine-dosage-pills" class="dosage-pills-row">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+
+            <!-- Clinician Note Cursive Highlight -->
+            <div id="routine-clinician-handwritten-note" class="clinician-handwritten-note">
+              3-4" holds
+            </div>
+
+            <!-- Dynamic Interactive Timer / Click Counter Area -->
+            <div class="timer-container">
+              <!-- Breathing Guide Expanding Circle (Pulsing background) -->
+              <div id="breathing-ring" class="breathing-ring"></div>
+              
+              <!-- Radial SVG countdown -->
+              <div class="timer-circle-wrap">
+                <svg class="timer-svg" viewBox="0 0 80 80">
+                  <circle class="track" cx="40" cy="40" r="36"></circle>
+                  <circle id="timer-progress-fill" class="bar" cx="40" cy="40" r="36" stroke-dasharray="226 226" stroke-dashoffset="0"></circle>
+                </svg>
+                <div class="timer-display">
+                  <span id="timer-digits" class="timer-digits">30</span>
+                  <span id="timer-subtext" class="timer-subtext">seconds</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reps & Sets counter display (for isometrics/nerve glides) -->
+            <div id="reps-sets-interactive-box" class="reps-sets-interactive-box">
+              <div>
+                <div class="rep-box-title">Reps Left</div>
+                <div id="active-rep-count" class="rep-box-val">5</div>
+              </div>
+              <div>
+                <div class="rep-box-title">Sets Left</div>
+                <div id="active-set-count" class="rep-box-val">2</div>
+              </div>
+              <button id="btn-rep-tick" class="rep-completion-btn">Complete Repetition (Hold 3s)</button>
+            </div>
+
+            <!-- Tool bar buttons -->
+            <div class="routine-toolbar">
+              <button id="btn-prev-exercise" class="btn-secondary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Prev
+              </button>
+              <button id="btn-next-exercise" class="btn-primary">
+                Next
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              </button>
+            </div>
+
+            <!-- Full Setup/Movement details -->
+            <div class="routine-instruction-details">
+              <div class="detail-section">
+                <span class="detail-label">Setup</span>
+                <p id="routine-detail-setup" class="detail-content">Begin sitting upright on a table grasping the edge with one hand.</p>
+              </div>
+              <div class="detail-section">
+                <span class="detail-label">Movement</span>
+                <p id="routine-detail-movement" class="detail-content">Rotate your head up and to the side opposite of your anchored arm...</p>
+              </div>
+              <div id="routine-detail-tip-box" class="detail-section">
+                <span class="detail-label">Clinician Tip</span>
+                <p id="routine-detail-tip" class="detail-content">Make sure to keep your back straight during the exercise.</p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      
+      <!-- SCREEN 3: PAIN SURVEY & SESSION COMPLETION -->
+      <section id="screen-completion" class="screen">
+        <!-- Post-Session Pain Tracker -->
+        <div id="pain-survey-box" class="pain-scale-input-card">
+          <div class="completion-icon">✓</div>
+          <h2 class="completion-title">Excellent Job!</h2>
+          <p class="completion-desc">Your routine is fully completed. Let's record your neck pain level now to track your therapeutic improvements.</p>
+          
+          <div class="pain-value-bubble" id="pain-value-display">5</div>
+          <div class="pain-slider-wrap">
+            <input type="range" id="pain-slider" class="pain-slider" min="0" max="10" value="5">
+            <div class="pain-slider-labels">
+              <span>0 (No Pain)</span>
+              <span>5 (Moderate)</span>
+              <span>10 (Severe)</span>
+            </div>
+          </div>
+          
+          <button id="btn-save-session-data" class="btn-primary">Save Session & Finish</button>
+        </div>
+
+        <!-- Final completion celebration screen -->
+        <div id="completion-summary-box" class="completion-card" style="display: none;">
+          <div class="completion-icon">🏆</div>
+          <h2 class="completion-title">Routine Logged!</h2>
+          <p class="completion-desc">Your daily session has been successfully recorded in your history log. Regular physical therapy will help improve neck range of motion and relieve chronic tension.</p>
+          
+          <div class="quick-stats-row" style="width: 100%;">
+            <div class="stat-item">
+              <div id="summary-duration" class="stat-val">12m</div>
+              <div class="stat-label">Duration</div>
+            </div>
+            <div id="summary-pain-alleviation-container" class="stat-item">
+              <div id="summary-pain-delta" class="stat-val">-2</div>
+              <div class="stat-label">Pain Change</div>
+            </div>
+            <div class="stat-item">
+              <div id="summary-streak" class="stat-val">4 Days</div>
+              <div class="stat-label">Current Streak</div>
+            </div>
+          </div>
+          
+          <button id="btn-complete-back-home" class="btn-primary">Go to Dashboard</button>
+        </div>
+      </section>
+
+      
+      <!-- SCREEN 4: HISTORY AND ANALYTICS -->
+      <section id="screen-stats" class="screen">
+        <div class="progress-card">
+          <div class="section-title-row" style="margin-top:0;">
+            <h2 class="progress-title">Your Progress Insights</h2>
+            <button id="btn-close-stats" class="icon-btn" style="width:32px; height:32px;">✕</button>
+          </div>
+          <p class="progress-desc">View your historical exercises logs and check how physical therapy correlates with your reported neck pain level.</p>
+        </div>
+
+        <!-- SVG Analytics chart -->
+        <div class="chart-card">
+          <div class="chart-title-row">
+            <span class="chart-title">Daily Reported Pain Levels</span>
+            <span class="ex-meta">Last 7 Sessions</span>
+          </div>
+          <div class="svg-chart-container">
+            <svg id="pain-chart-svg" width="100%" height="100%" viewBox="0 0 400 160" preserveAspectRatio="none">
+              <!-- Grid Lines -->
+              <line x1="40" y1="20" x2="380" y2="20" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4"></line>
+              <line x1="40" y1="60" x2="380" y2="60" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4"></line>
+              <line x1="40" y1="100" x2="380" y2="100" stroke="rgba(255,255,255,0.06)" stroke-dasharray="4"></line>
+              <line x1="40" y1="140" x2="380" y2="140" stroke="var(--border-color)"></line>
+              
+              <!-- Left Y-Axis Labels -->
+              <text x="15" y="24" fill="var(--text-muted)" font-size="9" text-anchor="middle">10</text>
+              <text x="15" y="64" fill="var(--text-muted)" font-size="9" text-anchor="middle">5</text>
+              <text x="15" y="104" fill="var(--text-muted)" font-size="9" text-anchor="middle">2</text>
+              <text x="15" y="144" fill="var(--text-muted)" font-size="9" text-anchor="middle">0</text>
+
+              <!-- Line Chart Path dynamically injected -->
+              <path id="chart-line-path" d="" fill="none" stroke="var(--color-accent)" stroke-width="3" stroke-linecap="round"></path>
+              <g id="chart-dots-group"></g>
+            </svg>
+          </div>
+        </div>
+
+        <!-- History Log table -->
+        <div class="chart-card">
+          <span class="chart-title">Completed Sessions</span>
+          <div id="history-logs-container" class="history-logs-list">
+            <!-- Dynamically populated rows -->
+            <div class="ex-meta" style="text-align: center; padding: 20px 0; width:100%;">No sessions completed yet. Start your first session to begin logging.</div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  
+  <!-- MODAL: VIEW ORIGINAL PRINTOUT SCAN -->
+  <div id="original-image-modal" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="modal-exercise-title" class="modal-title">Original Printout Scan</h3>
+        <button id="btn-close-modal" class="icon-btn" style="width:32px; height:32px;">✕</button>
+      </div>
+      <div class="modal-body">
+        <img id="modal-original-image" src="" alt="Source scan from MedBridge clinical handout">
+      </div>
+      <p class="ex-meta" style="line-height:1.35; padding:0 4px;">This image is cropped directly from your Therapeutic Associates PT printout for posture and anatomical reference.</p>
+    </div>
+  </div>
+
+  <!-- Static Program Data -->
+  <script src="data.js"></script>
+  <!-- Audio synthesiser -->
+  <script src="audio.js"></script>
+  <!-- Main state manager logic -->
+  <script src="app.js"></script>
+</body>
+</html>

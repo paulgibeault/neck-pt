@@ -1,0 +1,8 @@
+{
+  "name": "neck-pt",
+  "version": "1.0.0",
+  "description": "Interactive Neck PT Companion App",
+  "scripts": {
+    "start": "npx http-server -p 8080"
+  }
+}
