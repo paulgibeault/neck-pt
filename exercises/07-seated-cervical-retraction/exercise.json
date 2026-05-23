@@ -1,0 +1,25 @@
+{
+  "order": 7,
+  "slug": "seated-cervical-retraction",
+  "title": "Seated Cervical Retraction",
+  "category": "mobilization",
+  "source_image": "seated-cervical-retraction.jpeg",
+  "dosage": {
+    "hold_seconds": null,
+    "reps": {
+      "min": 6,
+      "max": 8
+    },
+    "sets": {
+      "min": 3,
+      "max": 3
+    },
+    "daily": 1,
+    "weekly": 7
+  },
+  "example_image_count": 2,
+  "setup": "Begin sitting in an upright position with your feet flat on the floor.",
+  "movement": "Gently draw your chin in, while keeping your eyes fixed on something in front of you.",
+  "tip": "Make sure that you do not look down as you do this exercise, or bend your neck forward.",
+  "notes": []
+}

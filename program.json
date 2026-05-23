@@ -1,0 +1,35 @@
+{
+  "patient": {
+    "name": "Rachel Gibeault",
+    "episode": "Neck"
+  },
+  "provider": {
+    "name": "Brian Weiderman",
+    "clinic": "Therapeutic Associates Physical Therapy",
+    "address": "1859 S. Topaz Way, Suite 200, Meridian, Idaho",
+    "phone": "208-888-7765"
+  },
+  "platform": {
+    "name": "MedBridge GO",
+    "login_url": "taiweb.medbridgego.com",
+    "access_code": "CC8X3A8B"
+  },
+  "printed_dates": ["2026-05-15", "2026-05-22"],
+  "clinician_notes": [
+    "Breath - James Nestor (book recommendation written across the header of page 1)",
+    "3-4\" holds (handwritten beside the isometric exercises)"
+  ],
+  "exercises": [
+    {"order": 1,  "slug": "seated-upper-trapezius-stretch",          "folder": "exercises/01-seated-upper-trapezius-stretch"},
+    {"order": 2,  "slug": "seated-levator-scapulae-stretch",         "folder": "exercises/02-seated-levator-scapulae-stretch"},
+    {"order": 3,  "slug": "standing-isometric-cervical-sidebending", "folder": "exercises/03-standing-isometric-cervical-sidebending"},
+    {"order": 4,  "slug": "seated-isometric-cervical-rotation",      "folder": "exercises/04-seated-isometric-cervical-rotation"},
+    {"order": 5,  "slug": "sternocleidomastoid-stretch",             "folder": "exercises/05-sternocleidomastoid-stretch"},
+    {"order": 6,  "slug": "cervicothoracic-mobilization",            "folder": "exercises/06-cervicothoracic-mobilization"},
+    {"order": 7,  "slug": "seated-cervical-retraction",              "folder": "exercises/07-seated-cervical-retraction"},
+    {"order": 8,  "slug": "supine-chest-stretch-foam-roll",          "folder": "exercises/08-supine-chest-stretch-foam-roll"},
+    {"order": 9,  "slug": "standing-median-nerve-glide",             "folder": "exercises/09-standing-median-nerve-glide"},
+    {"order": 10, "slug": "prone-single-arm-shoulder-y",             "folder": "exercises/10-prone-single-arm-shoulder-y"},
+    {"order": 11, "slug": "prone-shoulder-horizontal-abduction",     "folder": "exercises/11-prone-shoulder-horizontal-abduction"}
+  ]
+}

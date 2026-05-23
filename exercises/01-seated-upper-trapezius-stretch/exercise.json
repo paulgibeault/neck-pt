@@ -1,0 +1,19 @@
+{
+  "order": 1,
+  "slug": "seated-upper-trapezius-stretch",
+  "title": "Seated Upper Trapezius Stretch",
+  "category": "stretch",
+  "source_image": "seated-upper-trapezius-stretch.jpeg",
+  "dosage": {
+    "hold_seconds": 30,
+    "reps": null,
+    "sets": null,
+    "daily": 1,
+    "weekly": 7
+  },
+  "example_image_count": 2,
+  "setup": "Begin sitting upright on a table grasping the edge with one hand.",
+  "movement": "Rotate your head up and to the side opposite of your anchored arm and slowly lean it toward your shoulder, applying pressure with your hand until you feel a stretch and hold.",
+  "tip": "Make sure to keep your back straight during the exercise.",
+  "notes": []
+}

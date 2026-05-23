@@ -1,0 +1,27 @@
+{
+  "order": 3,
+  "slug": "standing-isometric-cervical-sidebending",
+  "title": "Standing Isometric Cervical Sidebending with Manual Resistance",
+  "category": "isometric",
+  "source_image": "standing-isometric-cervical-sidebending.jpeg",
+  "dosage": {
+    "hold_seconds": null,
+    "reps": {
+      "min": 5,
+      "max": 5
+    },
+    "sets": {
+      "min": 2,
+      "max": 2
+    },
+    "daily": 1,
+    "weekly": 7
+  },
+  "example_image_count": 2,
+  "setup": "Begin in a standing upright position with your feet shoulder width apart.",
+  "movement": "Gently tuck your chin. Place your hand on your temple and gently apply pressure, using your neck muscles to keep your head steady.",
+  "tip": "Do not let your head tilt or rotate during the exercise.",
+  "notes": [
+    "Handwritten by clinician: 3-4\" holds"
+  ]
+}

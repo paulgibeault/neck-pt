@@ -1,0 +1,27 @@
+{
+  "order": 4,
+  "slug": "seated-isometric-cervical-rotation",
+  "title": "Seated Isometric Cervical Rotation",
+  "category": "isometric",
+  "source_image": "seated-isometric-cervical-rotation.jpeg",
+  "dosage": {
+    "hold_seconds": null,
+    "reps": {
+      "min": 5,
+      "max": 5
+    },
+    "sets": {
+      "min": 2,
+      "max": 2
+    },
+    "daily": 1,
+    "weekly": 7
+  },
+  "example_image_count": 1,
+  "setup": "Begin sitting in an upright position.",
+  "movement": "Place your hand on the side of your face, then try to turn your head, resisting the motion with your hand. Hold, then relax and repeat.",
+  "tip": "There should be little to no movement. Make sure to keep your back straight during the exercise.",
+  "notes": [
+    "Handwritten by clinician: 3-4\" holds"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "order": 9,
+  "slug": "standing-median-nerve-glide",
+  "title": "Standing Median Nerve Glide",
+  "category": "nerve-glide",
+  "source_image": "standing-median-nerve-glide.jpeg",
+  "dosage": {
+    "hold_seconds": null,
+    "reps": {
+      "min": 10,
+      "max": 10
+    },
+    "sets": {
+      "min": 2,
+      "max": 3
+    },
+    "daily": 1,
+    "weekly": null
+  },
+  "example_image_count": 4,
+  "setup": "Begin in a standing upright position.",
+  "movement": "Curl one arm toward the top of your shoulder, bending at your elbow and wrist. Next, slowly straighten your elbow out to the side of your body. When your elbow is straight, extend your wrist so your fingers are pointed toward the floor. Slowly return to the starting position and repeat.",
+  "tip": "Make sure to do the movements smoothly and continuously. Try to keep your back straight during the exercise.",
+  "notes": []
+}

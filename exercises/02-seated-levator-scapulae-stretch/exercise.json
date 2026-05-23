@@ -1,0 +1,19 @@
+{
+  "order": 2,
+  "slug": "seated-levator-scapulae-stretch",
+  "title": "Seated Levator Scapulae Stretch",
+  "category": "stretch",
+  "source_image": "seated-levator-scapulae-stretch.jpeg",
+  "dosage": {
+    "hold_seconds": 30,
+    "reps": null,
+    "sets": null,
+    "daily": 1,
+    "weekly": 7
+  },
+  "example_image_count": 2,
+  "setup": "Begin sitting upright in a chair, grasping the edge with one hand.",
+  "movement": "Rotate your head to the side opposite your anchored arm, then tuck your chin towards your chest. With your free hand, grasp the back of your head and gently pull it downward until you feel a stretch and hold.",
+  "tip": "Make sure to keep your back straight during the exercise.",
+  "notes": []
+}
