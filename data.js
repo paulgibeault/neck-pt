@@ -1,12 +1,15 @@
 /**
- * Neck PT Companion - Self-Contained Program Prescription Data
- * Bundles all clinician notes, program meta, and all 11 exercises to run completely 
- * serverless and offline, bypassing any local filesystem browser CORS policies.
+ * Neck PT Companion - Canonical Program Prescription Data
+ *
+ * This is the SINGLE SOURCE OF TRUTH for the program. The app reads only this file.
+ * (The former program.json + per-exercise exercise.json files were removed; their
+ * content was folded in here.) Loaded as an ES module — the app must be served over
+ * http (see `npm start`), not opened via file://.
  */
 
-window.PT_PROGRAM_DATA = {
+export const PROGRAM = {
   "patient": {
-    "name": "Patient",
+    "name": "Rachel Gibeault",
     "episode": "Neck"
   },
   "provider": {

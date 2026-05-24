@@ -2,7 +2,9 @@
   "name": "neck-pt",
   "version": "1.0.0",
   "description": "Interactive Neck PT Companion App",
+  "type": "module",
   "scripts": {
-    "start": "npx http-server -p 8080"
+    "start": "npx http-server -p 8080",
+    "test": "node test.mjs"
   }
 }

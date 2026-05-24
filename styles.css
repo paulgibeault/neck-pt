@@ -587,7 +587,11 @@ main {
   height: 100%;
   object-fit: contain;
   transition: opacity 0.5s ease;
-  cursor: zoom-in;
+}
+
+/* The active routine illustration is tappable: vector <-> example photo */
+#routine-active-illustration {
+  cursor: pointer;
 }
 
 /* Image scrubber frame indicators */
@@ -845,6 +849,20 @@ main {
   background: var(--bg-active-row);
 }
 
+.btn-secondary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-secondary:disabled:hover {
+  background: var(--bg-card);
+}
+
+/* Positive pain-change emphasis on the completion summary */
+.text-success {
+  color: var(--color-success);
+}
+
 /* Text Instruction Details */
 .routine-instruction-details {
   display: flex;
@@ -912,79 +930,6 @@ main {
 
 .dark-theme .clinician-handwritten-note::before {
   background: #d97706;
-}
-
-/* Modal overlays (Original view) */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  z-index: 100;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.modal-overlay.active {
-  display: flex;
-  opacity: 1;
-}
-
-.modal-container {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 24px;
-  width: 100%;
-  max-width: 440px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  box-shadow: var(--shadow-lg);
-  transform: translateY(20px);
-  transition: transform 0.3s ease;
-}
-
-.modal-overlay.active .modal-container {
-  transform: translateY(0);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-title {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.modal-body {
-  width: 100%;
-  aspect-ratio: 4/3;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #fff;
-  border: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-body img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
 }
 
 /* Stats and Logs Layout */

@@ -143,5 +143,5 @@ class PTAudioSystem {
   }
 }
 
-// Export a single global instance for simplicity in vanilla JS app
-window.PTAudio = new PTAudioSystem();
+// Single shared instance for the app.
+export const audio = new PTAudioSystem();
