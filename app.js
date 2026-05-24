@@ -76,6 +76,7 @@ class NeckPTApp {
       dosagePills: document.getElementById('routine-dosage-pills'),
       handwrittenNote: document.getElementById('routine-clinician-handwritten-note'),
       breathingRing: document.getElementById('breathing-ring'),
+      timerContainer: document.querySelector('.timer-container'),
       timerProgressFill: document.getElementById('timer-progress-fill'),
       timerDigits: document.getElementById('timer-digits'),
       timerSubtext: document.getElementById('timer-subtext'),
@@ -164,7 +165,8 @@ class NeckPTApp {
     this.dom.btnNextEx.addEventListener('click', () => this.changeExercise(1));
     
     // Original photo modal overlay triggers
-    this.dom.btnToggleOriginal.addEventListener('click', () => this.openOriginalPhotoModal());
+    this.dom.btnToggleOriginal.addEventListener('click', () => this.toggleOriginalAndGenerated());
+    this.dom.activeIllustration.addEventListener('click', () => this.openOriginalPhotoModal());
     this.dom.btnCloseModal.addEventListener('click', () => this.closeOriginalPhotoModal());
     this.dom.originalImageModal.addEventListener('click', (e) => {
       if (e.target === this.dom.originalImageModal) this.closeOriginalPhotoModal();
@@ -296,7 +298,7 @@ class NeckPTApp {
       
       card.innerHTML = `
         <div class="ex-thumb">
-          <img src="${ex.folder}/example-1.png" alt="" onerror="this.src='exercises/01-seated-upper-trapezius-stretch/example-1.png'">
+          <img src="${ex.folder}/vector-1.png" alt="" onerror="this.src='exercises/01-seated-upper-trapezius-stretch/vector-1.png'">
         </div>
         <div class="ex-info">
           <div class="ex-title">${ex.title}</div>
@@ -367,7 +369,7 @@ class NeckPTApp {
     this.dom.summaryTitle.textContent = ex.title;
     
     // Preview Image/Illustration (always load first illustration)
-    this.dom.summaryPreview.src = `${ex.folder}/example-1.png`;
+    this.dom.summaryPreview.src = `${ex.folder}/vector-1.png`;
     
     // Setup detail descriptions
     this.dom.summaryDetailSetup.textContent = ex.setup || 'Neutral sitting posture.';
@@ -528,7 +530,14 @@ class NeckPTApp {
     // Setup visuals & illustration frame animations
     this.activeFrameIndex = 1;
     this.showingOriginal = false;
-    this.dom.btnToggleOriginal.textContent = "View Original Printout";
+    this.dom.btnToggleOriginal.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+      View Original Printout
+    `;
     
     this.renderActiveFrame();
     this.buildFrameScrubberDots(ex.example_image_count);
@@ -538,7 +547,7 @@ class NeckPTApp {
     if (dosage.hold_seconds) {
       // TIMER MODE
       this.dom.repsSetsBox.style.display = 'none';
-      this.dom.timerDigits.parentElement.parentElement.style.display = 'flex';
+      this.dom.timerContainer.style.display = 'flex';
       
       this.timerSecondsLeft = dosage.hold_seconds;
       this.dom.timerDigits.textContent = this.timerSecondsLeft;
@@ -550,7 +559,7 @@ class NeckPTApp {
     } else {
       // MANUAL REPS HOLD MODE
       this.dom.repsSetsBox.style.display = 'grid';
-      this.dom.timerDigits.parentElement.parentElement.style.display = 'none';
+      this.dom.timerContainer.style.display = 'none';
       this.dom.breathingRing.className = "breathing-ring";
       
       if (ex.category === 'isometric') {
@@ -593,10 +602,10 @@ class NeckPTApp {
     
     if (this.showingOriginal) {
       // Render source photo scan crop
-      this.dom.activeIllustration.src = `${ex.folder}/${ex.source_image}`;
+      this.dom.activeIllustration.src = `${ex.folder}/example-${this.activeFrameIndex}.png`;
     } else {
       // Render beautiful vector illustration frame
-      this.dom.activeIllustration.src = `${ex.folder}/example-${this.activeFrameIndex}.png`;
+      this.dom.activeIllustration.src = `${ex.folder}/vector-${this.activeFrameIndex}.png`;
     }
     
     // Highlight matching dot
@@ -619,8 +628,6 @@ class NeckPTApp {
       dot.addEventListener('click', () => {
         this.stopFrameAnimator();
         this.activeFrameIndex = i;
-        this.showingOriginal = false;
-        this.dom.btnToggleOriginal.textContent = "View Original Printout";
         this.renderActiveFrame();
       });
       this.dom.frameDotsContainer.appendChild(dot);
@@ -648,6 +655,30 @@ class NeckPTApp {
       clearInterval(this.animatorInterval);
       this.animatorInterval = null;
     }
+  }
+
+  toggleOriginalAndGenerated() {
+    this.showingOriginal = !this.showingOriginal;
+    
+    if (this.showingOriginal) {
+      this.dom.btnToggleOriginal.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+        View Generated Vector
+      `;
+    } else {
+      this.dom.btnToggleOriginal.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        View Original Printout
+      `;
+    }
+    
+    this.renderActiveFrame();
   }
 
   openOriginalPhotoModal() {
