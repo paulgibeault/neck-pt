@@ -179,7 +179,7 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
               </svg>
-              Start Guided Sets (Play)
+              Start Hands-Free Routine
             </button>
           </div>
         </div>
@@ -243,6 +243,12 @@
               3-4" holds
             </div>
 
+            <!-- Hands-free guided status banner: the single thing you glance at -->
+            <div id="guided-status" class="guided-status">
+              <div id="guided-status-label" class="guided-status-label">Get Ready</div>
+              <div id="guided-status-sub" class="guided-status-sub"></div>
+            </div>
+
             <!-- Dynamic Interactive Timer / Click Counter Area -->
             <div class="timer-container">
               <!-- Breathing Guide Expanding Circle (Pulsing background) -->
@@ -274,16 +280,44 @@
               <button id="btn-rep-tick" class="rep-completion-btn">Complete Repetition (Hold 3s)</button>
             </div>
 
-            <!-- Tool bar buttons -->
-            <div class="routine-toolbar">
-              <button id="btn-prev-exercise" class="btn-secondary">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                Prev
+            <!-- Hands-free control bar (primary = big pause) -->
+            <div class="guided-controls">
+              <button id="btn-guided-back" class="gc-btn" title="Restart / previous exercise" aria-label="Restart or go to previous exercise">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
               </button>
-              <button id="btn-next-exercise" class="btn-primary">
-                Next
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              <button id="btn-guided-pause" class="gc-btn gc-primary" title="Pause / resume (Space)" aria-label="Pause or resume">
+                <svg id="gc-pause-icon" width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"></rect><rect x="14" y="5" width="4" height="14"></rect></svg>
+                <svg id="gc-play-icon" width="30" height="30" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
               </button>
+              <button id="btn-guided-skip" class="gc-btn" title="Skip to next exercise" aria-label="Skip to next exercise">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 5 22 12 13 19 13 5"></polygon><polygon points="2 5 11 12 2 19 2 5"></polygon></svg>
+              </button>
+            </div>
+
+            <!-- Secondary controls: tempo, repeat, microphone toggle -->
+            <div class="guided-controls-secondary">
+              <button id="btn-guided-repeat" class="gc-chip" title="Repeat this exercise (R)">↺ Repeat</button>
+              <button id="btn-guided-slower" class="gc-chip" title="Slow the pace (-)">– Slower</button>
+              <span id="guided-tempo" class="gc-tempo" aria-live="polite">1.0×</span>
+              <button id="btn-guided-faster" class="gc-chip" title="Speed up the pace (+)">Faster +</button>
+              <button id="btn-guided-mic" class="gc-chip gc-mic" title="Toggle voice control" aria-pressed="false">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line></svg>
+                <span id="mic-state">Mic…</span>
+              </button>
+            </div>
+
+            <!-- Hands-free hint -->
+            <div id="guided-voice-hint" class="guided-voice-hint">
+              Say <b>“pause”</b> · <b>“next”</b> · <b>“back”</b> · <b>“repeat”</b> · <b>“slower / faster”</b>
+            </div>
+
+            <!-- Inline exit confirmation (replaces blocking confirm dialog) -->
+            <div id="guided-exit-confirm" class="guided-exit-confirm" style="display:none;">
+              <span>End this session? Progress won't be saved.</span>
+              <div class="exit-confirm-actions">
+                <button id="btn-exit-resume" class="btn-secondary">Resume</button>
+                <button id="btn-exit-end" class="btn-danger">End Session</button>
+              </div>
             </div>
 
             <!-- Full Setup/Movement details -->

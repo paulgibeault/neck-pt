@@ -830,6 +830,161 @@ main {
   gap: 12px;
 }
 
+/* ============================================================
+   HANDS-FREE GUIDED MODE
+   ============================================================ */
+
+/* Big at-a-glance status banner — the one thing you read mid-exercise. */
+.guided-status {
+  text-align: center;
+  margin-bottom: 4px;
+}
+.guided-status-label {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+.guided-status-sub {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  min-height: 1.2em;
+}
+.guided-status.is-paused .guided-status-label { color: var(--color-warning); }
+
+/* Primary transport controls (back / pause / skip). Large, finger-friendly. */
+.guided-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 4px;
+}
+.gc-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.gc-btn:hover { background: var(--bg-active-row); }
+.gc-btn:active { transform: scale(0.94); }
+.gc-primary {
+  width: 76px;
+  height: 76px;
+  border: none;
+  color: #fff;
+  background: linear-gradient(135deg, var(--color-brand), var(--color-accent));
+  box-shadow: var(--shadow-md);
+}
+.gc-primary.is-paused {
+  background: linear-gradient(135deg, var(--color-warning), #f97316);
+}
+
+/* Secondary row: tempo, repeat, mic. */
+.guided-controls-secondary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.gc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.gc-chip:hover { background: var(--bg-active-row); }
+.gc-chip:active { transform: scale(0.96); }
+.gc-tempo {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--color-accent);
+  min-width: 42px;
+  text-align: center;
+}
+
+/* Microphone toggle states. */
+.gc-mic[data-state="listening"] {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+.gc-mic[data-state="listening"] svg { animation: micPulse 1.6s ease-in-out infinite; }
+.gc-mic[data-state="off"] { opacity: 0.7; }
+.gc-mic[data-state="denied"],
+.gc-mic[data-state="unsupported"] {
+  opacity: 0.5;
+  text-decoration: line-through;
+  cursor: default;
+}
+@keyframes micPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* Flash feedback when a voice command lands. */
+.guided-controls-secondary.cmd-flash { animation: cmdFlash 0.5s ease; }
+@keyframes cmdFlash {
+  0% { background: var(--color-brand-light); border-radius: 12px; }
+  100% { background: transparent; }
+}
+
+.guided-voice-hint {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.guided-voice-hint b { color: var(--text-primary); font-weight: 700; }
+
+/* Inline exit confirmation — replaces the old blocking confirm() dialog. */
+.guided-exit-confirm {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  background: var(--bg-card);
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+.exit-confirm-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+.exit-confirm-actions .btn-secondary,
+.exit-confirm-actions .btn-danger { flex: 1; padding: 12px; }
+.btn-danger {
+  background: var(--color-danger);
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.btn-danger:hover { filter: brightness(1.08); }
+
 .btn-secondary {
   background: var(--bg-card);
   border: 1px solid var(--border-color);

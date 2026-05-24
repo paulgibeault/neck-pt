@@ -73,8 +73,27 @@ export class View {
       activeRepCount: $('active-rep-count'),
       activeSetCount: $('active-set-count'),
       btnRepTick: $('btn-rep-tick'),
-      btnPrevEx: $('btn-prev-exercise'),
-      btnNextEx: $('btn-next-exercise'),
+
+      // hands-free guided controls
+      guidedStatus: $('guided-status'),
+      guidedStatusLabel: $('guided-status-label'),
+      guidedStatusSub: $('guided-status-sub'),
+      btnGuidedBack: $('btn-guided-back'),
+      btnGuidedPause: $('btn-guided-pause'),
+      btnGuidedSkip: $('btn-guided-skip'),
+      gcPauseIcon: $('gc-pause-icon'),
+      gcPlayIcon: $('gc-play-icon'),
+      btnGuidedRepeat: $('btn-guided-repeat'),
+      btnGuidedSlower: $('btn-guided-slower'),
+      btnGuidedFaster: $('btn-guided-faster'),
+      guidedTempo: $('guided-tempo'),
+      btnGuidedMic: $('btn-guided-mic'),
+      micState: $('mic-state'),
+      guidedControlsSecondary: document.querySelector('.guided-controls-secondary'),
+      exitConfirm: $('guided-exit-confirm'),
+      btnExitResume: $('btn-exit-resume'),
+      btnExitEnd: $('btn-exit-end'),
+
       detailSetup: $('routine-detail-setup'),
       detailMovement: $('routine-detail-movement'),
       detailTipBox: $('routine-detail-tip-box'),
@@ -200,21 +219,66 @@ export class View {
     this._setNote(this.dom.handwrittenNote, clinicianNote);
 
     this.setOriginalToggle(false);
-    this.dom.btnPrevEx.disabled = idx === 0;
-    this.dom.btnNextEx.textContent = idx === total - 1 ? 'Finish Routine' : 'Next';
 
-    // mode: 'timer' | 'reps'
-    if (mode === 'timer') {
-      this.dom.repsSetsBox.style.display = 'none';
-      this.dom.timerContainer.style.display = 'flex';
-    } else {
-      this.dom.repsSetsBox.style.display = 'grid';
-      this.dom.timerContainer.style.display = 'none';
-      this.dom.btnRepTick.textContent = ex.category === 'isometric'
-        ? 'Complete Repetition (Hold 3s)'
-        : 'Complete Repetition';
-    }
+    // Hands-free guided mode drives one universal countdown ring for every
+    // phase (get-ready / hold / rep / rest), so the manual rep button and its
+    // box stay hidden — the ring + status banner carry all the per-step info.
+    this.dom.repsSetsBox.style.display = 'none';
+    this.dom.timerContainer.style.display = 'flex';
+    this.dom.exitConfirm.style.display = 'none';
     this.setBreathing('idle');
+  }
+
+  /* ---- hands-free guided rendering ---- */
+
+  /** Render the current phase: big status banner + side chip + countdown ring. */
+  renderGuidedPhase(display, totalSeconds, remainingSeconds = totalSeconds) {
+    this.dom.guidedStatusLabel.textContent = display.label;
+    this.dom.guidedStatusSub.textContent = display.sub || '';
+    this.updateSide(display.side);
+    this.setTimerDisplay(remainingSeconds, totalSeconds, display.ringSub);
+  }
+
+  /** Per-tick ring/seconds refresh without touching the (unchanged) label. */
+  renderPhaseTime(remainingSeconds, totalSeconds) {
+    this.setTimerDisplay(remainingSeconds, totalSeconds, null);
+  }
+
+  setGuidedPaused(paused) {
+    this.dom.guidedStatus.classList.toggle('is-paused', paused);
+    this.dom.btnGuidedPause.classList.toggle('is-paused', paused);
+    this.dom.gcPauseIcon.style.display = paused ? 'none' : 'block';
+    this.dom.gcPlayIcon.style.display = paused ? 'block' : 'none';
+    this.dom.btnGuidedPause.setAttribute('aria-label', paused ? 'Resume' : 'Pause');
+  }
+
+  // state: 'listening' | 'off' | 'denied' | 'unsupported'
+  setMicState(state) {
+    const labels = { listening: 'Listening', off: 'Mic off', denied: 'Mic blocked', unsupported: 'No mic' };
+    this.dom.micState.textContent = labels[state] || 'Mic';
+    this.dom.btnGuidedMic.dataset.state = state;
+    this.dom.btnGuidedMic.setAttribute('aria-pressed', state === 'listening' ? 'true' : 'false');
+  }
+
+  setTempoLabel(speed) {
+    // `speed` is relative to nominal tempo: <1 slower, >1 faster.
+    this.dom.guidedTempo.textContent = `${speed.toFixed(1)}×`;
+  }
+
+  flashVoiceCommand() {
+    const el = this.dom.guidedControlsSecondary;
+    if (!el) return;
+    el.classList.remove('cmd-flash');
+    void el.offsetWidth; // restart the animation
+    el.classList.add('cmd-flash');
+  }
+
+  showExitConfirm(show) {
+    this.dom.exitConfirm.style.display = show ? 'block' : 'none';
+  }
+
+  isRoutineActive() {
+    return this.screens.routine.classList.contains('active');
   }
 
   setTimerDisplay(secondsLeft, total, subtext) {

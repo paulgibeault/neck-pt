@@ -27,10 +27,11 @@ index.html      — static screen skeleton (DOM template) + <script type="module
 data.js         — PROGRAM: the single source of truth (patient/provider meta + 11 exercises)
 format.js       — pure formatting & chart-geometry helpers (no DOM)        ← tested
 store.js        — localStorage persistence, history, day-streak math       ← tested
-engine.js       — CountdownTimer + RepSetTracker state machine (no DOM)     ← tested
+engine.js       — CountdownTimer, RepSetTracker, buildExercisePlan (no DOM) ← tested
 audio.js        — Web Audio cue synthesizer
+speech.js       — Speaker (spoken coaching/TTS) + VoiceCommander (voice control) ← matchCommand tested
 ui.js           — View: owns the DOM cache and every DOM mutation
-app.js          — controller: wiring, routing, session flow
+app.js          — controller: wiring, routing, session flow, guided autopilot
 test.mjs        — Node tests for the DOM-free modules
 exercises/
   NN-<slug>/
@@ -72,6 +73,36 @@ copies of the same data.)
 
 Range display rule: show `"5"` when `min == max`, else `"min–max"` (e.g. `"6–8"`).
 
+## Hands-free guided mode
+
+The routine is meant to be run while your hands are busy doing the technique, so
+it is **auto-paced**: pressing *Start Hands-Free Routine* hands the whole program
+to an autopilot that runs itself end to end and coaches you out loud.
+
+- **`engine.js buildExercisePlan(ex)`** turns one exercise into an ordered list of
+  timed *phases* — `announce → prepare → (hold | rep…) → switch → rest → … →
+  complete` — including side switches for unilateral work and breathing rests
+  between sets. Pure & DOM-free, so it is unit-tested.
+- **`app.js` plays the plan**: a 1 s scheduler walks the phases, drives the
+  countdown ring + breathing guide + status banner, fires the audio cues, and
+  advances exercise-to-exercise automatically. There is no per-rep button and no
+  blocking `alert()`/`confirm()` — side switches, set rests and exit are all
+  spoken/inline.
+- **`speech.js Speaker`** speaks every cue via the Web Speech *synthesis* API
+  (TTS). This is the reliable backbone — you follow by ear. It no-ops gracefully
+  where unavailable.
+- **`speech.js VoiceCommander`** is the optional control layer (Web Speech
+  *recognition*, Chrome/Edge): the spoken grammar `pause · resume · next · back ·
+  repeat · slower · faster` maps to controls (`matchCommand`, tested). Where
+  recognition is unavailable the mic chip shows *No mic* and control falls back to
+  the keyboard / on-screen buttons.
+
+**Control surface (all equivalent):** big on-screen Back / Pause / Skip buttons
+plus a Repeat / Slower / Faster / Mic row · tap the countdown ring to pause ·
+keyboard `Space` = pause, `←/→` = back/skip, `R` = repeat, `-/+` = slower/faster,
+`Esc` = exit. *Slower/Faster* scales the coaching tempo (reps, get-ready, rest)
+only — prescribed `hold_seconds` are never sped up.
+
 ## Source-photo → exercise map
 
 | Photo         | Folder                                          | Panels |
@@ -92,8 +123,9 @@ Range display rule: show `"5"` when `min == max`, else `"min–max"` (e.g. `"6�
 
 ## Known follow-ups (UI-tightening phase)
 
-- Replace remaining native `alert()`/`confirm()` (side switches, set rests, exit)
-  with in-app, non-blocking UI.
+- ~~Replace remaining native `alert()`/`confirm()` (side switches, set rests, exit)
+  with in-app, non-blocking UI.~~ **Done** — the hands-free guided autopilot
+  removed all per-rep clicking and blocking dialogs (see *Hands-free guided mode*).
 - Honest per-exercise progress (the dashboard radial is currently all-or-nothing
   per completed session).
 - PWA: add a manifest + service worker to back the existing install meta tags.

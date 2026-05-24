@@ -6,7 +6,8 @@
 import assert from 'node:assert/strict';
 import { formatRange, formatDosageShort, dosagePills, clamp, painToY, greeting } from './format.js';
 import { Store } from './store.js';
-import { RepSetTracker } from './engine.js';
+import { RepSetTracker, buildExercisePlan, PACING } from './engine.js';
+import { matchCommand } from './speech.js';
 
 let passed = 0;
 function test(name, fn) {
@@ -108,6 +109,70 @@ test('RepSetTracker unilateral switches sides', () => {
   assert.equal(events.filter((e) => e === 'sideSwitch').length, 2);
   assert.equal(events.filter((e) => e === 'setComplete').length, 1);
   assert.equal(events[events.length - 1], 'exerciseComplete');
+});
+
+/* ---- guided autopilot: buildExercisePlan ---- */
+const countTypes = (plan) => plan.reduce((m, p) => ((m[p.type] = (m[p.type] || 0) + 1), m), {});
+
+test('plan: unilateral hold (both sides, no scaling of the hold)', () => {
+  const ex = { title: 'Trap Stretch', category: 'stretch', unilateral: true,
+    dosage: { hold_seconds: 30 } };
+  const plan = buildExercisePlan(ex);
+  const t = countTypes(plan);
+  assert.equal(t.announce, 1);
+  assert.equal(t.prepare, 1);   // first side prepares
+  assert.equal(t.switch, 1);    // one switch to the second side
+  assert.equal(t.hold, 2);      // one hold per side
+  assert.equal(t.complete, 1);
+  const holds = plan.filter((p) => p.type === 'hold');
+  assert.equal(holds[0].side, 'left');
+  assert.equal(holds[1].side, 'right');
+  // The prescribed hold time is carried verbatim from the dosage.
+  assert.ok(holds.every((p) => p.durationSec === 30));
+});
+
+test('plan: unilateral isometric reps × sets switch sides and rest between sets', () => {
+  const ex = { title: 'Iso Sidebend', category: 'isometric', unilateral: true,
+    dosage: { reps: { min: 5, max: 5 }, sets: { min: 2, max: 2 } } };
+  const plan = buildExercisePlan(ex);
+  const t = countTypes(plan);
+  assert.equal(t.rep, 5 * 2 * 2, '5 reps × 2 sets × 2 sides');
+  assert.equal(t.switch, 2, 'one left→right switch per set');
+  assert.equal(t.rest, 1, 'one rest before the 2nd set');
+  assert.equal(t.prepare, 1);
+  // Isometric reps carry their own short countdown (the 3-4" hold).
+  assert.ok(plan.filter((p) => p.type === 'rep').every((p) => p.isometric && p.countdown));
+});
+
+test('plan: bilateral reps use ranges max and rest between sets only', () => {
+  const ex = { title: 'Retraction', category: 'mobilization', unilateral: false,
+    dosage: { reps: { min: 6, max: 8 }, sets: { min: 3, max: 3 } } };
+  const plan = buildExercisePlan(ex);
+  const t = countTypes(plan);
+  assert.equal(t.rep, 8 * 3, 'uses reps.max, no side doubling');
+  assert.equal(t.switch || 0, 0, 'bilateral never switches sides');
+  assert.equal(t.rest, 2, 'rest before sets 2 and 3');
+  assert.equal(plan.filter((p) => p.type === 'rep')[0].side, null);
+});
+
+test('plan: pacing is injectable', () => {
+  const ex = { title: 'X', category: 'stretch', unilateral: false, dosage: { hold_seconds: 10 } };
+  const plan = buildExercisePlan(ex, { ...PACING, prepareSec: 99 });
+  assert.equal(plan.find((p) => p.type === 'prepare').durationSec, 99);
+});
+
+/* ---- voice grammar: matchCommand ---- */
+test('matchCommand maps spoken phrases to controls', () => {
+  assert.equal(matchCommand('pause please'), 'pause');
+  assert.equal(matchCommand('stop'), 'pause');
+  assert.equal(matchCommand('okay continue'), 'resume');
+  assert.equal(matchCommand('next'), 'next');
+  assert.equal(matchCommand('skip this one'), 'next');
+  assert.equal(matchCommand('go back'), 'back', 'specific phrase wins over bare "go"');
+  assert.equal(matchCommand('slow down'), 'slower');
+  assert.equal(matchCommand('speed up'), 'faster');
+  assert.equal(matchCommand('repeat that'), 'repeat');
+  assert.equal(matchCommand('hello there'), null);
 });
 
 console.log(`\n${passed} tests passed`);
