@@ -34,6 +34,7 @@ class NeckPTApp {
     this.store = new Store();
     this.view = new View();
     this.speaker = new Speaker();
+    this.speaker.setMuted(this.store.getSpeechMuted()); // restore last mute preference
     this.voice = null;          // lazily created on first routine (needs a user gesture)
     this.voiceEnabled = true;   // user preference for the mic
 
@@ -83,6 +84,7 @@ class NeckPTApp {
     d.btnGuidedRepeat.addEventListener('click', () => this.repeatExercise());
     d.btnGuidedSlower.addEventListener('click', () => this.adjustTempo('slower'));
     d.btnGuidedFaster.addEventListener('click', () => this.adjustTempo('faster'));
+    d.btnGuidedVoice.addEventListener('click', () => this.toggleSpeech());
     d.btnGuidedMic.addEventListener('click', () => this.toggleMic());
     // Tapping the big countdown ring is a quick pause/resume target.
     d.timerContainer.addEventListener('click', () => this.toggleGuidedPause());
@@ -214,6 +216,7 @@ class NeckPTApp {
     this.tempoScale = 1;
     this.view.setTempoLabel(1 / this.tempoScale);
     this.view.showExitConfirm(false);
+    this.view.setSpeechMuted(this.speaker.muted);
     this.view.showScreen('routine');
     this.startVoice();
     if (!this.guidedTick) this.guidedTick = setInterval(() => this.guidedStep(), 1000);
@@ -401,6 +404,14 @@ class NeckPTApp {
     else { this.view.setMicState('off'); }
   }
 
+  /** Mute / unmute the spoken coaching (TTS). Tones from audio.js are unaffected. */
+  toggleSpeech() {
+    const muted = !this.speaker.muted;
+    this.speaker.setMuted(muted); // setMuted(true) also cancels any current utterance
+    this.store.setSpeechMuted(muted);
+    this.view.setSpeechMuted(muted);
+  }
+
   toggleMic() {
     if (!this.voice || !this.voice.supported) return;
     if (this.voice.listening) {
@@ -440,6 +451,7 @@ class NeckPTApp {
       case 'r': case 'R': this.repeatExercise(); break;
       case '-': case '_': this.adjustTempo('slower'); break;
       case '+': case '=': this.adjustTempo('faster'); break;
+      case 'm': case 'M': this.toggleSpeech(); break;
       case 'Escape': this.requestExit(); break;
       default: break;
     }

@@ -12,6 +12,7 @@ const KEYS = {
   streak: 'neck_pt_streak',
   lastDate: 'neck_pt_last_date',
   theme: 'neck_pt_theme',
+  speechMuted: 'neck_pt_speech_muted',
 };
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -110,5 +111,14 @@ export class Store {
 
   setTheme(theme) {
     this.storage.setItem(KEYS.theme, theme);
+  }
+
+  /* ---- spoken-coaching mute preference (persists across sessions) ---- */
+  getSpeechMuted() {
+    return this.storage.getItem(KEYS.speechMuted) === '1';
+  }
+
+  setSpeechMuted(muted) {
+    this.storage.setItem(KEYS.speechMuted, muted ? '1' : '0');
   }
 }

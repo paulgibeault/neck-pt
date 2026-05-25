@@ -144,7 +144,7 @@
             </div>
           </div>
 
-          <!-- Right Column: Details & Play button -->
+          <!-- Right Column: Exercise meta -->
           <div class="routine-tracking-card">
             <div class="ex-info-block">
               <h2 id="summary-title" class="ex-info-title">Seated Upper Trapezius Stretch</h2>
@@ -157,32 +157,45 @@
             <div id="summary-clinician-note" class="clinician-handwritten-note">
               3-4" holds
             </div>
-
-            <!-- Setup/Movement details -->
-            <div class="routine-instruction-details">
-              <div class="detail-section">
-                <span class="detail-label">Setup</span>
-                <p id="summary-detail-setup" class="detail-content">Begin sitting upright...</p>
-              </div>
-              <div class="detail-section">
-                <span class="detail-label">Movement</span>
-                <p id="summary-detail-movement" class="detail-content">Rotate head...</p>
-              </div>
-              <div id="summary-detail-tip-box" class="detail-section">
-                <span class="detail-label">Clinician Tip</span>
-                <p id="summary-detail-tip" class="detail-content">Back straight...</p>
-              </div>
-            </div>
-
-            <!-- Start Exercise Play Button -->
-            <button id="btn-summary-play" class="btn-primary" style="margin-top: 12px; width: 100%;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-              </svg>
-              Start Hands-Free Routine
-            </button>
           </div>
         </div>
+
+        <!-- Setup/Movement details span the full screen width -->
+        <div class="routine-instruction-card">
+          <div class="routine-instruction-details">
+            <div class="detail-section detail-setup">
+              <div class="detail-head">
+                <span class="detail-step-num">1</span>
+                <span class="detail-label">Setup</span>
+              </div>
+              <p id="summary-detail-setup" class="detail-content">Begin sitting upright...</p>
+            </div>
+            <div class="detail-section detail-movement">
+              <div class="detail-head">
+                <span class="detail-step-num">2</span>
+                <span class="detail-label">Movement</span>
+              </div>
+              <p id="summary-detail-movement" class="detail-content">Rotate head...</p>
+            </div>
+            <div id="summary-detail-tip-box" class="detail-section detail-tip">
+              <div class="detail-head">
+                <span class="detail-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path></svg>
+                </span>
+                <span class="detail-label">Clinician Tip</span>
+              </div>
+              <p id="summary-detail-tip" class="detail-content">Back straight...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Start Exercise Play Button (full width, below the brief) -->
+        <button id="btn-summary-play" class="btn-primary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          Start Hands-Free Routine
+        </button>
       </section>
 
       <!-- SCREEN 2: ACTIVE ROUTINE STEPPER -->
@@ -200,8 +213,8 @@
 
         <!-- Main Routine Work Grid -->
         <div class="routine-grid">
-          
-          <!-- Column 1: Visual Demonstration -->
+
+          <!-- Column 1: Visual demonstration with the integrated player (timer + transport) -->
           <div class="routine-visual-card">
             <!-- View Original Toggle -->
             <button id="btn-toggle-original-photo" class="original-toggle-btn">
@@ -222,9 +235,63 @@
             <div id="routine-frame-dots-container" class="frame-indicator-bar">
               <!-- Dots injected dynamically -->
             </div>
+
+            <!-- Player deck: status, countdown, and transport live with the image -->
+            <div class="routine-player">
+              <!-- Hands-free guided status banner: the single thing you glance at -->
+              <div id="guided-status" class="guided-status">
+                <div id="guided-status-label" class="guided-status-label">Get Ready</div>
+                <div id="guided-status-sub" class="guided-status-sub"></div>
+              </div>
+
+              <!-- Dynamic Interactive Timer / Click Counter Area -->
+              <div class="timer-container">
+                <!-- Breathing Guide Expanding Circle (Pulsing background) -->
+                <div id="breathing-ring" class="breathing-ring"></div>
+
+                <!-- Radial SVG countdown -->
+                <div class="timer-circle-wrap">
+                  <svg class="timer-svg" viewBox="0 0 80 80">
+                    <circle class="track" cx="40" cy="40" r="36"></circle>
+                    <circle id="timer-progress-fill" class="bar" cx="40" cy="40" r="36" stroke-dasharray="226 226" stroke-dashoffset="0"></circle>
+                  </svg>
+                  <div class="timer-display">
+                    <span id="timer-digits" class="timer-digits">30</span>
+                    <span id="timer-subtext" class="timer-subtext">seconds</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Reps & Sets counter display (for isometrics/nerve glides) -->
+              <div id="reps-sets-interactive-box" class="reps-sets-interactive-box">
+                <div>
+                  <div class="rep-box-title">Reps Left</div>
+                  <div id="active-rep-count" class="rep-box-val">5</div>
+                </div>
+                <div>
+                  <div class="rep-box-title">Sets Left</div>
+                  <div id="active-set-count" class="rep-box-val">2</div>
+                </div>
+                <button id="btn-rep-tick" class="rep-completion-btn">Complete Repetition (Hold 3s)</button>
+              </div>
+
+              <!-- Hands-free control bar (primary = big pause) -->
+              <div class="guided-controls">
+                <button id="btn-guided-back" class="gc-btn" title="Restart / previous exercise" aria-label="Restart or go to previous exercise">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
+                </button>
+                <button id="btn-guided-pause" class="gc-btn gc-primary" title="Pause / resume (Space)" aria-label="Pause or resume">
+                  <svg id="gc-pause-icon" width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"></rect><rect x="14" y="5" width="4" height="14"></rect></svg>
+                  <svg id="gc-play-icon" width="30" height="30" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+                </button>
+                <button id="btn-guided-skip" class="gc-btn" title="Skip to next exercise" aria-label="Skip to next exercise">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 5 22 12 13 19 13 5"></polygon><polygon points="2 5 11 12 2 19 2 5"></polygon></svg>
+                </button>
+              </div>
+            </div>
           </div>
 
-          <!-- Column 2: Tracking and Text Controls -->
+          <!-- Column 2: Exercise info + auxiliary controls -->
           <div class="routine-tracking-card">
             <!-- Info Header -->
             <div class="ex-info-block">
@@ -243,63 +310,17 @@
               3-4" holds
             </div>
 
-            <!-- Hands-free guided status banner: the single thing you glance at -->
-            <div id="guided-status" class="guided-status">
-              <div id="guided-status-label" class="guided-status-label">Get Ready</div>
-              <div id="guided-status-sub" class="guided-status-sub"></div>
-            </div>
-
-            <!-- Dynamic Interactive Timer / Click Counter Area -->
-            <div class="timer-container">
-              <!-- Breathing Guide Expanding Circle (Pulsing background) -->
-              <div id="breathing-ring" class="breathing-ring"></div>
-              
-              <!-- Radial SVG countdown -->
-              <div class="timer-circle-wrap">
-                <svg class="timer-svg" viewBox="0 0 80 80">
-                  <circle class="track" cx="40" cy="40" r="36"></circle>
-                  <circle id="timer-progress-fill" class="bar" cx="40" cy="40" r="36" stroke-dasharray="226 226" stroke-dashoffset="0"></circle>
-                </svg>
-                <div class="timer-display">
-                  <span id="timer-digits" class="timer-digits">30</span>
-                  <span id="timer-subtext" class="timer-subtext">seconds</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Reps & Sets counter display (for isometrics/nerve glides) -->
-            <div id="reps-sets-interactive-box" class="reps-sets-interactive-box">
-              <div>
-                <div class="rep-box-title">Reps Left</div>
-                <div id="active-rep-count" class="rep-box-val">5</div>
-              </div>
-              <div>
-                <div class="rep-box-title">Sets Left</div>
-                <div id="active-set-count" class="rep-box-val">2</div>
-              </div>
-              <button id="btn-rep-tick" class="rep-completion-btn">Complete Repetition (Hold 3s)</button>
-            </div>
-
-            <!-- Hands-free control bar (primary = big pause) -->
-            <div class="guided-controls">
-              <button id="btn-guided-back" class="gc-btn" title="Restart / previous exercise" aria-label="Restart or go to previous exercise">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
-              </button>
-              <button id="btn-guided-pause" class="gc-btn gc-primary" title="Pause / resume (Space)" aria-label="Pause or resume">
-                <svg id="gc-pause-icon" width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"></rect><rect x="14" y="5" width="4" height="14"></rect></svg>
-                <svg id="gc-play-icon" width="30" height="30" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
-              </button>
-              <button id="btn-guided-skip" class="gc-btn" title="Skip to next exercise" aria-label="Skip to next exercise">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 5 22 12 13 19 13 5"></polygon><polygon points="2 5 11 12 2 19 2 5"></polygon></svg>
-              </button>
-            </div>
-
             <!-- Secondary controls: tempo, repeat, microphone toggle -->
             <div class="guided-controls-secondary">
               <button id="btn-guided-repeat" class="gc-chip" title="Repeat this exercise (R)">↺ Repeat</button>
               <button id="btn-guided-slower" class="gc-chip" title="Slow the pace (-)">– Slower</button>
               <span id="guided-tempo" class="gc-tempo" aria-live="polite">1.0×</span>
               <button id="btn-guided-faster" class="gc-chip" title="Speed up the pace (+)">Faster +</button>
+              <button id="btn-guided-voice" class="gc-chip gc-voice" title="Mute or unmute the spoken coaching (M)" aria-pressed="false">
+                <svg id="gc-voice-on-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                <svg id="gc-voice-off-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                <span id="voice-out-state">Voice</span>
+              </button>
               <button id="btn-guided-mic" class="gc-chip gc-mic" title="Toggle voice control" aria-pressed="false">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line></svg>
                 <span id="mic-state">Mic…</span>
@@ -319,25 +340,37 @@
                 <button id="btn-exit-end" class="btn-danger">End Session</button>
               </div>
             </div>
-
-            <!-- Full Setup/Movement details -->
-            <div class="routine-instruction-details">
-              <div class="detail-section">
-                <span class="detail-label">Setup</span>
-                <p id="routine-detail-setup" class="detail-content">Begin sitting upright on a table grasping the edge with one hand.</p>
-              </div>
-              <div class="detail-section">
-                <span class="detail-label">Movement</span>
-                <p id="routine-detail-movement" class="detail-content">Rotate your head up and to the side opposite of your anchored arm...</p>
-              </div>
-              <div id="routine-detail-tip-box" class="detail-section">
-                <span class="detail-label">Clinician Tip</span>
-                <p id="routine-detail-tip" class="detail-content">Make sure to keep your back straight during the exercise.</p>
-              </div>
-            </div>
-
           </div>
 
+        </div>
+
+        <!-- Full Setup/Movement details span the full screen width -->
+        <div class="routine-instruction-card">
+          <div class="routine-instruction-details">
+            <div class="detail-section detail-setup">
+              <div class="detail-head">
+                <span class="detail-step-num">1</span>
+                <span class="detail-label">Setup</span>
+              </div>
+              <p id="routine-detail-setup" class="detail-content">Begin sitting upright on a table grasping the edge with one hand.</p>
+            </div>
+            <div class="detail-section detail-movement">
+              <div class="detail-head">
+                <span class="detail-step-num">2</span>
+                <span class="detail-label">Movement</span>
+              </div>
+              <p id="routine-detail-movement" class="detail-content">Rotate your head up and to the side opposite of your anchored arm...</p>
+            </div>
+            <div id="routine-detail-tip-box" class="detail-section detail-tip">
+              <div class="detail-head">
+                <span class="detail-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path></svg>
+                </span>
+                <span class="detail-label">Clinician Tip</span>
+              </div>
+              <p id="routine-detail-tip" class="detail-content">Make sure to keep your back straight during the exercise.</p>
+            </div>
+          </div>
         </div>
       </section>
 

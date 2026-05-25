@@ -89,6 +89,10 @@ export class View {
       guidedTempo: $('guided-tempo'),
       btnGuidedMic: $('btn-guided-mic'),
       micState: $('mic-state'),
+      btnGuidedVoice: $('btn-guided-voice'),
+      voiceOutState: $('voice-out-state'),
+      gcVoiceOnIcon: $('gc-voice-on-icon'),
+      gcVoiceOffIcon: $('gc-voice-off-icon'),
       guidedControlsSecondary: document.querySelector('.guided-controls-secondary'),
       exitConfirm: $('guided-exit-confirm'),
       btnExitResume: $('btn-exit-resume'),
@@ -258,6 +262,15 @@ export class View {
     this.dom.micState.textContent = labels[state] || 'Mic';
     this.dom.btnGuidedMic.dataset.state = state;
     this.dom.btnGuidedMic.setAttribute('aria-pressed', state === 'listening' ? 'true' : 'false');
+  }
+
+  // muted = true → spoken coaching is silenced (crossed-out speaker + "Muted").
+  setSpeechMuted(muted) {
+    this.dom.voiceOutState.textContent = muted ? 'Muted' : 'Voice';
+    this.dom.btnGuidedVoice.dataset.state = muted ? 'muted' : 'on';
+    this.dom.btnGuidedVoice.setAttribute('aria-pressed', muted ? 'true' : 'false');
+    this.dom.gcVoiceOnIcon.style.display = muted ? 'none' : 'block';
+    this.dom.gcVoiceOffIcon.style.display = muted ? 'block' : 'none';
   }
 
   setTempoLabel(speed) {

@@ -616,6 +616,18 @@ main {
   border-radius: 4px;
 }
 
+/* Player deck — status banner, countdown ring, and transport controls grouped
+   directly beneath the illustration so the image + timer + buttons read as one
+   unit. A hairline rule separates the reference image from the live controls. */
+.routine-player {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 14px;
+  margin-top: 2px;
+  border-top: 1px solid var(--border-color);
+}
+
 /* Toggle reference controls */
 .original-toggle-btn {
   position: absolute;
@@ -667,10 +679,11 @@ main {
 }
 
 .ex-info-title {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.02em;
+  line-height: 1.25;
 }
 
 .dosage-pills-row {
@@ -940,6 +953,12 @@ main {
   50% { opacity: 0.35; }
 }
 
+/* Spoken-coaching (TTS) mute toggle. Muted = de-emphasised + warning tint. */
+.gc-voice[data-state="muted"] {
+  border-color: var(--color-warning);
+  color: var(--color-warning);
+}
+
 /* Flash feedback when a voice command lands. */
 .guided-controls-secondary.cmd-flash { animation: cmdFlash 0.5s ease; }
 @keyframes cmdFlash {
@@ -1018,32 +1037,127 @@ main {
   color: var(--color-success);
 }
 
-/* Text Instruction Details */
+/* Full-width card holding the instructions, so the text spans the whole
+   screen instead of being trapped in the narrow tracking column. */
+.routine-instruction-card {
+  background: var(--bg-card);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: var(--shadow-md);
+}
+
+/* Text Instruction Details — readable, scannable exercise steps */
 .routine-instruction-details {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
+/* On wide screens the three steps sit side by side across the full width,
+   keeping each column at a comfortable reading measure. */
+@media (min-width: 768px) {
+  .routine-instruction-details {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 14px;
+  }
+  .routine-instruction-details .detail-section {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+/* Each instruction is its own card with a colored accent stripe so Setup,
+   Movement, and the Tip read as distinct at a glance. */
 .detail-section {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--border-color);
+}
+
+.detail-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+/* Numbered badge for the sequential Setup → Movement steps. */
+.detail-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+/* Rounded-square icon chip (used by the Clinician Tip). */
+.detail-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  color: #fff;
+  flex-shrink: 0;
 }
 
 .detail-label {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: var(--text-muted);
-  letter-spacing: 0.05em;
 }
 
 .detail-content {
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-  line-height: 1.45;
+  font-size: 1rem;
+  color: var(--text-primary);
+  line-height: 1.6;
 }
+
+/* Setup — sky accent */
+.detail-setup { border-left-color: var(--color-accent); }
+.detail-setup .detail-step-num { background: var(--color-accent); }
+.detail-setup .detail-label { color: var(--color-accent); }
+
+/* Movement — the action you actually perform, so give it the most weight. */
+.detail-movement {
+  border-left-color: var(--color-brand);
+  background: rgba(13, 148, 136, 0.06);
+}
+.detail-movement .detail-step-num { background: var(--color-brand); }
+.detail-movement .detail-label { color: var(--color-brand); }
+.detail-movement .detail-content {
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.55;
+}
+
+/* Clinician Tip — amber callout with a lightbulb. */
+.detail-tip {
+  border-left-color: var(--color-warning);
+  background: rgba(245, 158, 11, 0.07);
+}
+.detail-tip .detail-icon { background: var(--color-warning); }
+.detail-tip .detail-label { color: var(--color-warning); }
+.detail-tip .detail-content { color: var(--text-secondary); }
+
+.dark-theme .detail-movement { background: rgba(20, 184, 166, 0.08); }
+.dark-theme .detail-tip { background: rgba(245, 158, 11, 0.1); }
 
 /* Clinician Sticker Cursive Notes */
 .clinician-handwritten-note {
