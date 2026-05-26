@@ -7,7 +7,7 @@
  * PWA from the very first session — no internet required during workouts.
  */
 
-const CACHE_NAME = "neck-pt-v4";
+const CACHE_NAME = "neck-pt-v5";
 
 // Core app shell — always pre-cached on install.
 const SHELL_ASSETS = [
@@ -79,8 +79,14 @@ self.addEventListener("activate", (e) => {
 
 // Fetch: cache-first for same-origin requests; pass through for cross-origin.
 self.addEventListener("fetch", (e) => {
-  // Skip non-GET requests and cross-origin fetches (e.g., Google Fonts).
-  if (e.request.method !== "GET" || new URL(e.request.url).origin !== self.location.origin) {
+  const url = new URL(e.request.url);
+
+  // Pass through: non-GET, cross-origin, and favicon (doesn't exist in this app).
+  if (
+    e.request.method !== "GET" ||
+    url.origin !== self.location.origin ||
+    url.pathname === "/favicon.ico"
+  ) {
     return;
   }
 
@@ -94,14 +100,18 @@ self.addEventListener("fetch", (e) => {
           return response;
         }
         // Dynamically cache exercise assets (additional frames, source photos)
-        // so subsequent visits are fully offline.
+        // so subsequent offline visits can serve them from cache.
         const clone = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
         return response;
       }).catch(() => {
-        // Return nothing on network failure — the browser will show its own
-        // offline error page for HTML navigation; sub-resources just fail silently.
-        return new Response("", { status: 503, statusText: "Offline" });
+        // For navigation requests, the browser's built-in offline page is fine.
+        // For sub-resources (images, scripts), Response.error() signals a network
+        // failure without producing a visible 503 error in the console.
+        if (e.request.destination === "document") {
+          return caches.match("./index.html");
+        }
+        return Response.error();
       });
     })
   );
