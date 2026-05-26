@@ -261,16 +261,24 @@ export class View {
   // state: 'listening' | 'off' | 'denied' | 'unsupported'
   setMicState(state) {
     const labels = { listening: 'Listening', off: 'Mic off', denied: 'Mic blocked', unsupported: 'No mic' };
-    this.dom.micState.textContent = labels[state] || 'Mic';
+    if (this.dom.micState) this.dom.micState.textContent = labels[state] || 'Mic';
     this.dom.btnGuidedMic.dataset.state = state;
     this.dom.btnGuidedMic.setAttribute('aria-pressed', state === 'listening' ? 'true' : 'false');
+    this.dom.btnGuidedMic.setAttribute('title', `Voice Control: ${labels[state] || 'Mic'}`);
+
+    // Show/hide voice command hints based on voice control state
+    const hint = document.getElementById('guided-voice-hint');
+    if (hint) {
+      hint.style.display = state === 'listening' ? 'block' : 'none';
+    }
   }
 
   // muted = true → spoken coaching is silenced (crossed-out speaker + "Muted").
   setSpeechMuted(muted) {
-    this.dom.voiceOutState.textContent = muted ? 'Muted' : 'Voice';
+    if (this.dom.voiceOutState) this.dom.voiceOutState.textContent = muted ? 'Muted' : 'Voice';
     this.dom.btnGuidedVoice.dataset.state = muted ? 'muted' : 'on';
     this.dom.btnGuidedVoice.setAttribute('aria-pressed', muted ? 'true' : 'false');
+    this.dom.btnGuidedVoice.setAttribute('title', muted ? 'Unmute Spoken Coaching (M)' : 'Mute Spoken Coaching (M)');
     this.dom.gcVoiceOnIcon.style.display = muted ? 'none' : 'block';
     this.dom.gcVoiceOffIcon.style.display = muted ? 'block' : 'none';
   }

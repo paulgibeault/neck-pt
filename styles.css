@@ -226,6 +226,10 @@ main {
   display: flex;
 }
 
+#screen-routine, #screen-summary {
+  margin-top: -12px;
+}
+
 /* Dashboard Layout */
 /* Glassmorphism Card Base */
 .card {
@@ -502,17 +506,55 @@ main {
 /* Immersive Active Routine Screen */
 .routine-stepper-header {
   display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--bg-card);
+  padding: 16px 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  width: 100%;
+  max-width: 840px;
+  margin: 0 auto;
+}
+
+.routine-header-row {
+  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  background: var(--bg-card);
-  padding: 12px 16px;
-  border-radius: 16px;
-  border: 1px solid var(--border-color);
+  width: 100%;
+}
+
+.routine-header-title-area {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-grow: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.routine-header-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.routine-header-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .routine-progress-bar-container {
-  flex-grow: 1;
+  width: 100%;
   height: 6px;
   background: var(--border-color);
   border-radius: 3px;
@@ -538,14 +580,16 @@ main {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
+  max-width: 840px;
+  margin: 0 auto;
 }
 
 @media (min-width: 768px) {
   .routine-grid {
-    display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: 20px;
-    align-items: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 }
 
@@ -594,8 +638,8 @@ main {
 /* Floating View Original Photo Toggle Badge (Top Right) */
 .floating-toggle-overlay {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 12px;
+  right: 12px;
   z-index: 10;
   background: rgba(15, 23, 42, 0.65);
   backdrop-filter: blur(12px);
@@ -626,50 +670,74 @@ main {
   transform: scale(0.97);
 }
 
-/* Floating Summary Start Exercise Play Button Overlay (Absolute Center) */
+/* Floating Summary Start Exercise Play Button Overlay (Top Right) */
 .btn-summary-play-overlay {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 16px;
+  right: 16px;
   z-index: 10;
   background: linear-gradient(135deg, var(--color-brand), var(--color-accent));
   color: white;
   border: none;
-  padding: 14px 28px;
+  padding: 8px 18px;
   border-radius: 999px;
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   cursor: pointer;
-  box-shadow: 0 10px 30px rgba(13, 148, 136, 0.4);
+  box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
   transition: var(--transition-smooth);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .btn-summary-play-overlay:hover {
-  transform: translate(-50%, -52%) scale(1.04);
-  box-shadow: 0 14px 35px rgba(13, 148, 136, 0.55);
+  transform: scale(1.03);
+  box-shadow: 0 6px 20px rgba(13, 148, 136, 0.45);
   filter: brightness(1.05);
 }
 
 .btn-summary-play-overlay:active {
-  transform: translate(-50%, -50%) scale(0.96);
+  transform: scale(0.97);
 }
 
-/* Pulse ring animation around the play button */
 .btn-summary-play-overlay::after {
-  content: '';
+  display: none;
+}
+
+/* Floating Summary Back Button Overlay (Top Left) */
+.canvas-visual-wrapper .floating-back-overlay {
   position: absolute;
-  inset: -4px;
-  border-radius: 999px;
-  border: 2px solid var(--color-brand);
-  opacity: 0;
-  animation: playPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  pointer-events: none;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  padding: 0;
+}
+
+.dark-theme .canvas-visual-wrapper .floating-back-overlay {
+  background: rgba(31, 41, 55, 0.9);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.canvas-visual-wrapper .floating-back-overlay:hover {
+  background: var(--bg-active-row);
+  border-color: var(--color-accent);
+  transform: scale(1.05);
 }
 
 @keyframes playPulse {
@@ -723,11 +791,12 @@ main {
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-/* Floating Timer Complication (Bottom Right) */
+/* Floating Timer Complication (Middle Right) */
 .timer-overlay {
   position: absolute;
-  bottom: 16px;
+  top: 50%;
   right: 16px;
+  transform: translateY(-50%);
   width: 96px;
   height: 96px;
   z-index: 10;
@@ -746,12 +815,12 @@ main {
 }
 
 .timer-overlay:hover {
-  transform: scale(1.04);
+  transform: translateY(-50%) scale(1.04);
   background: rgba(15, 23, 42, 0.8);
 }
 
 .timer-overlay:active {
-  transform: scale(0.96);
+  transform: translateY(-50%) scale(0.96);
 }
 
 .timer-overlay .timer-circle-wrap {
@@ -801,20 +870,21 @@ main {
 /* Floating Transport Bar (Bottom Center) */
 .controls-overlay {
   position: absolute;
-  bottom: 16px;
+  bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 999px;
-  padding: 6px 14px;
+  padding: 6px 18px;
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  transition: var(--transition-smooth);
   margin-top: 0 !important;
 }
 
@@ -850,11 +920,82 @@ main {
   background: linear-gradient(135deg, var(--color-warning), #f97316);
 }
 
+/* Voice Control and Spoken Coaching icon adjustments */
+.controls-overlay .gc-voice[data-state="muted"] {
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+}
+
+.controls-overlay .gc-mic[data-state="listening"] {
+  border-color: rgba(20, 184, 166, 0.5) !important;
+  color: #14b8a6 !important;
+  background: rgba(20, 184, 166, 0.15) !important;
+  box-shadow: 0 0 10px rgba(20, 184, 166, 0.4);
+}
+
+.controls-overlay .gc-mic[data-state="denied"] {
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+}
+
+.controls-overlay .gc-mic[data-state="unsupported"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Dividers and Tempo Adjustment inside console */
+.gc-divider {
+  width: 1px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 0 4px;
+}
+
+.tempo-adjust-group {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 2px 8px;
+  gap: 4px;
+}
+
+.gc-btn-small {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  border-radius: 50%;
+}
+
+.gc-btn-small:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.gc-tempo-display {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #ffffff;
+  min-width: 28px;
+  text-align: center;
+}
+
 /* Floating Carousel dot indicator indicators (Bottom Left) */
 .frame-dots-overlay {
   position: absolute;
-  bottom: 20px;
-  left: 20px;
+  bottom: 12px;
+  left: 12px;
   z-index: 10;
   background: rgba(15, 23, 42, 0.55);
   backdrop-filter: blur(8px);
@@ -879,8 +1020,8 @@ main {
 /* Interactive sets/reps box overlay (for isometrics) */
 .reps-sets-overlay {
   position: absolute;
-  bottom: 16px;
-  left: 16px;
+  bottom: 12px;
+  left: 12px;
   z-index: 10;
   background: rgba(15, 23, 42, 0.75);
   backdrop-filter: blur(12px);

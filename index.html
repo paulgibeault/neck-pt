@@ -131,24 +131,20 @@
 
       <!-- SCREEN 5: EXERCISE SUMMARY PREVIEW -->
       <section id="screen-summary" class="screen">
-        <!-- Top Nav Stepper -->
-        <div class="routine-stepper-header">
-          <button id="btn-summary-back" class="icon-btn" title="Back to Dashboard" aria-label="Back to dashboard">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          </button>
-          <span id="summary-badge" class="ex-badge badge-stretch">Stretch</span>
-          <span id="summary-step-counter" class="step-indicator">Ex 1 of 11</span>
-        </div>
-
-        <div class="routine-grid">
-          <!-- Left Column: Visual demonstration preview with floating Start button overlay -->
+        <div class="routine-grid" style="margin-top: 16px;">
+          <!-- Left Column: Visual demonstration preview with floating Start/Back buttons -->
           <div class="routine-visual-card card">
             <div class="canvas-visual-wrapper">
+              <!-- Floating Back Button (Top Left) -->
+              <button id="btn-summary-back" class="icon-btn floating-back-overlay" title="Back to Dashboard" aria-label="Back to dashboard">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              </button>
+
               <img id="summary-preview-illustration" src="" alt="Exercise Demonstration Preview">
               
-              <!-- Floating Start Exercise Play Button Overlay -->
+              <!-- Floating Start Exercise Play Button Overlay (Top Right) -->
               <button id="btn-summary-play" class="btn-summary-play-overlay" title="Start Hands-Free Routine">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                   <polygon points="6 4 20 12 6 20 6 4"></polygon>
                 </svg>
                 <span>Start Routine</span>
@@ -159,6 +155,10 @@
           <!-- Right Column: Exercise meta -->
           <div class="routine-tracking-card card">
             <div class="ex-info-block">
+              <div class="ex-info-category" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                <span id="summary-badge" class="ex-badge badge-stretch">Stretch</span>
+                <span id="summary-step-counter" class="step-indicator">Ex 1 of 11</span>
+              </div>
               <h2 id="summary-title" class="ex-info-title">Seated Upper Trapezius Stretch</h2>
               <div id="summary-dosage-pills" class="dosage-pills-row">
                 <!-- Dosage info dynamically added -->
@@ -206,23 +206,38 @@
       <section id="screen-routine" class="screen">
         <!-- Top Nav Stepper -->
         <div class="routine-stepper-header">
-          <button id="btn-exit-routine" class="icon-btn" title="Exit Routine Session" aria-label="Exit routine session">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-          </button>
+          <div class="routine-header-row">
+            <button id="btn-exit-routine" class="icon-btn" title="Exit Routine Session" aria-label="Exit routine session">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <div class="routine-header-title-area">
+              <h2 id="routine-active-title" class="routine-header-title">Seated Upper Trapezius Stretch</h2>
+              <div class="routine-header-badges">
+                <span id="routine-active-category" class="ex-badge badge-stretch">Stretch</span>
+                <span id="routine-guided-side" class="ex-badge badge-nerve-glide" style="display:none; font-weight:700;">Left Side</span>
+                <div id="routine-dosage-pills" class="dosage-pills-row"></div>
+              </div>
+            </div>
+            <span id="routine-step-counter" class="step-indicator">Ex 1 of 11</span>
+          </div>
           <div class="routine-progress-bar-container">
             <div id="routine-progress-bar-fill" class="routine-progress-bar-fill"></div>
           </div>
-          <span id="routine-step-counter" class="step-indicator">Ex 1 of 11</span>
         </div>
 
         <!-- Main Routine Work Grid -->
         <div class="routine-grid">
 
-          <!-- Column 1: Unified Hero Display (Single Central Reference + Overlaid Timer, Status, and Controls) -->
+          <!-- Expanded Central Illustration Card (Full Width on Desktop) -->
           <div class="routine-visual-card card">
             <div class="canvas-visual-wrapper">
               <!-- Centered Reference Illustration (tappable to toggle vector <-> original photo) -->
               <img id="routine-active-illustration" class="active-illustration centered-reference" src="" alt="Exercise Reference">
+
+              <!-- Floating Clinician Handwritten Note Sticker (Top Left) -->
+              <div id="routine-clinician-handwritten-note" class="clinician-handwritten-note floating-note-overlay">
+                3-4" holds
+              </div>
 
               <!-- Floating View Original Photo Toggle Badge (Top Right) -->
               <button id="btn-toggle-original-photo" class="original-toggle-btn floating-toggle-overlay">
@@ -258,17 +273,49 @@
                 </div>
               </div>
 
-              <!-- Overlaid Floating Transport Bar (Bottom Center) -->
+              <!-- Consolidated Premium Transport Overlay Bar (Bottom Center) -->
               <div class="guided-controls controls-overlay">
-                <button id="btn-guided-back" class="gc-btn" title="Restart / previous exercise" aria-label="Restart or go to previous exercise">
+                <!-- Repeat -->
+                <button id="btn-guided-repeat" class="gc-btn icon-only" title="Repeat this exercise (R)" aria-label="Repeat exercise">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                </button>
+
+                <!-- Tempo Adjust Group -->
+                <div class="tempo-adjust-group">
+                  <button id="btn-guided-slower" class="gc-btn-small" title="Slower pace (-)" aria-label="Slower tempo">–</button>
+                  <span id="guided-tempo" class="gc-tempo-display" aria-live="polite">1.0×</span>
+                  <button id="btn-guided-faster" class="gc-btn-small" title="Faster pace (+)" aria-label="Faster tempo">+</button>
+                </div>
+
+                <!-- Divider -->
+                <div class="gc-divider"></div>
+
+                <!-- Main Transport -->
+                <button id="btn-guided-back" class="gc-btn icon-only" title="Restart / previous exercise" aria-label="Restart or go to previous exercise">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
                 </button>
-                <button id="btn-guided-pause" class="gc-btn gc-primary" title="Pause / resume (Space)" aria-label="Pause or resume">
+                <button id="btn-guided-pause" class="gc-btn gc-primary icon-only" title="Pause / resume (Space)" aria-label="Pause or resume">
                   <svg id="gc-pause-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"></rect><rect x="14" y="5" width="4" height="14"></rect></svg>
                   <svg id="gc-play-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
                 </button>
-                <button id="btn-guided-skip" class="gc-btn" title="Skip to next exercise" aria-label="Skip to next exercise">
+                <button id="btn-guided-skip" class="gc-btn icon-only" title="Skip to next exercise" aria-label="Skip to next exercise">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 5 22 12 13 19 13 5"></polygon><polygon points="2 5 11 12 2 19 2 5"></polygon></svg>
+                </button>
+
+                <!-- Divider -->
+                <div class="gc-divider"></div>
+
+                <!-- Spoken Coaching Voice Toggle -->
+                <button id="btn-guided-voice" class="gc-btn gc-voice icon-only" title="Mute/unmute spoken coaching (M)" aria-pressed="false">
+                  <svg id="gc-voice-on-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                  <svg id="gc-voice-off-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                  <span id="voice-out-state" style="display:none;">Voice</span>
+                </button>
+
+                <!-- Voice Control Microphone Toggle -->
+                <button id="btn-guided-mic" class="gc-btn gc-mic icon-only" title="Toggle voice control" aria-pressed="false">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line></svg>
+                  <span id="mic-state" style="display:none;">Mic…</span>
                 </button>
               </div>
 
@@ -292,64 +339,27 @@
             </div>
           </div>
 
-          <!-- Column 2: Exercise info + auxiliary controls -->
-          <div class="routine-tracking-card card">
-            <!-- Info Header -->
-            <div class="ex-info-block">
-              <div class="ex-info-category">
-                <span id="routine-active-category" class="ex-badge badge-stretch">Stretch</span>
-                <span id="routine-guided-side" class="ex-badge badge-nerve-glide" style="display:none; font-weight:700;">Left Side</span>
-              </div>
-              <h2 id="routine-active-title" class="ex-info-title">Seated Upper Trapezius Stretch</h2>
-              <div id="routine-dosage-pills" class="dosage-pills-row">
-                <!-- Injected via JS -->
-              </div>
-            </div>
+        </div>
 
-            <!-- Clinician Note Cursive Highlight -->
-            <div id="routine-clinician-handwritten-note" class="clinician-handwritten-note">
-              3-4" holds
-            </div>
+        <!-- Voice control hints (only shown when listening) -->
+        <div id="guided-voice-hint" class="guided-voice-hint" style="display:none;">
+          Say <b>“pause”</b> · <b>“next”</b> · <b>“back”</b> · <b>“repeat”</b> · <b>“slower / faster”</b>
+        </div>
 
-            <!-- Secondary controls: tempo, repeat, microphone toggle -->
-            <div class="guided-controls-secondary">
-              <button id="btn-guided-repeat" class="gc-chip" title="Repeat this exercise (R)">↺ Repeat</button>
-              <button id="btn-guided-slower" class="gc-chip" title="Slow the pace (-)">– Slower</button>
-              <span id="guided-tempo" class="gc-tempo" aria-live="polite">1.0×</span>
-              <button id="btn-guided-faster" class="gc-chip" title="Speed up the pace (+)">Faster +</button>
-              <button id="btn-guided-voice" class="gc-chip gc-voice" title="Mute or unmute the spoken coaching (M)" aria-pressed="false">
-                <svg id="gc-voice-on-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-                <svg id="gc-voice-off-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
-                <span id="voice-out-state">Voice</span>
-              </button>
-              <button id="btn-guided-mic" class="gc-chip gc-mic" title="Toggle voice control" aria-pressed="false">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line></svg>
-                <span id="mic-state">Mic…</span>
-              </button>
-            </div>
-
-            <!-- Hands-free hint -->
-            <div id="guided-voice-hint" class="guided-voice-hint">
-              Say <b>“pause”</b> · <b>“next”</b> · <b>“back”</b> · <b>“repeat”</b> · <b>“slower / faster”</b>
-            </div>
-
-            <!-- Exit confirmation: a centered sheet (replaces blocking confirm dialog) -->
-            <div id="guided-exit-confirm" class="guided-exit-confirm" style="display:none;">
-              <div class="exit-confirm-card card">
-                <p class="exit-confirm-title">End this session?</p>
-                <p class="exit-confirm-sub">Your progress won't be saved.</p>
-                <label class="exit-confirm-dismiss">
-                  <input type="checkbox" id="exit-confirm-dismiss-check">
-                  Don't ask me again
-                </label>
-                <div class="exit-confirm-actions">
-                  <button id="btn-exit-resume" class="btn-secondary">Resume</button>
-                  <button id="btn-exit-end" class="btn-danger">End Session</button>
-                </div>
-              </div>
+        <!-- Exit confirmation: overlay sheet -->
+        <div id="guided-exit-confirm" class="guided-exit-confirm" style="display:none;">
+          <div class="exit-confirm-card card">
+            <p class="exit-confirm-title">End this session?</p>
+            <p class="exit-confirm-sub">Your progress won't be saved.</p>
+            <label class="exit-confirm-dismiss">
+              <input type="checkbox" id="exit-confirm-dismiss-check">
+              Don't ask me again
+            </label>
+            <div class="exit-confirm-actions">
+              <button id="btn-exit-resume" class="btn-secondary">Resume</button>
+              <button id="btn-exit-end" class="btn-danger">End Session</button>
             </div>
           </div>
-
         </div>
 
         <!-- Full Setup/Movement details span the full screen width -->
