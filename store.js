@@ -140,7 +140,8 @@ export class Store {
 
   /* ---- spoken-coaching mute preference (persists across sessions) ---- */
   getSpeechMuted() {
-    return this.storage.getItem(KEYS.speechMuted) === '1';
+    const val = this.storage.getItem(KEYS.speechMuted);
+    return val === null ? true : val === '1';
   }
 
   setSpeechMuted(muted) {

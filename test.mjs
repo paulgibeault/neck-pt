@@ -93,6 +93,17 @@ test('exit-confirm dismissed preference persists', () => {
   // survives a reload
   assert.equal(new Store(storage, at('2026-05-25T10:00')).getExitConfirmDismissed(), true);
 });
+test('speechMuted preference defaults to true (off) and persists', () => {
+  const storage = fakeStorage();
+  const s = new Store(storage, at('2026-05-25T10:00'));
+  assert.equal(s.getSpeechMuted(), true, 'defaults to muted (speech off)');
+  s.setSpeechMuted(false);
+  assert.equal(s.getSpeechMuted(), false, 'can be unmuted');
+  // survives a reload
+  assert.equal(new Store(storage, at('2026-05-25T10:00')).getSpeechMuted(), false, 'persists unmuted');
+  s.setSpeechMuted(true);
+  assert.equal(new Store(storage, at('2026-05-25T10:00')).getSpeechMuted(), true, 'persists muted');
+});
 test('completedToday', () => {
   const s = new Store(fakeStorage(), at('2026-05-22T20:00'));
   s.history = [{ date: new Date('2026-05-22T08:00').toISOString() }];

@@ -36,7 +36,7 @@ class NeckPTApp {
     this.speaker = new Speaker();
     this.speaker.setMuted(this.store.getSpeechMuted()); // restore last mute preference
     this.voice = null;          // lazily created on first routine (needs a user gesture)
-    this.voiceEnabled = true;   // user preference for the mic
+    this.voiceEnabled = false;  // off by default
 
     // transient session state
     this.currentExIndex = 0;
