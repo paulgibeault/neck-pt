@@ -20,19 +20,27 @@ npm test           # runs the logic-layer tests (plain Node, no deps)
 
 Vanilla JS, no framework, no build step. The code is split into focused ES
 modules with a one-way flow — the controller reads the model and calls the
-view; the view never reaches back into logic.
+view; the view never reaches back into logic. See **[ARCHITECTURE.md](./ARCHITECTURE.md)** for full
+details including Mermaid diagrams, phase state machine, and voice command grammar.
 
 ```
-index.html      — static screen skeleton (DOM template) + <script type="module">
-data.js         — PROGRAM: the single source of truth (patient/provider meta + 11 exercises)
-format.js       — pure formatting & chart-geometry helpers (no DOM)        ← tested
-store.js        — localStorage persistence, history, day-streak math       ← tested
-engine.js       — CountdownTimer, RepSetTracker, buildExercisePlan (no DOM) ← tested
-audio.js        — Web Audio cue synthesizer
-speech.js       — Speaker (spoken coaching/TTS) + VoiceCommander (voice control) ← matchCommand tested
-ui.js           — View: owns the DOM cache and every DOM mutation
-app.js          — controller: wiring, routing, session flow, guided autopilot
-test.mjs        — Node tests for the DOM-free modules
+index.html       — static screen skeleton (DOM template) + <script type="module">
+sw.js            — Service Worker: cache-first offline PWA
+manifest.json    — PWA manifest
+styles.css       — full design system
+test.mjs         — 41 Node unit tests for all DOM-free modules
+
+src/
+  data.js        — PROGRAM: single source of truth + validateProgram() schema guard  ← tested
+  format.js      — pure formatting & chart-geometry helpers (no DOM)                 ← tested
+  store.js       — localStorage persistence, history, day-streak, pacing config      ← tested
+  engine.js      — CountdownTimer, RepSetTracker, buildExercisePlan (no DOM)         ← tested
+  session.js     — RoutineSession: DOM-free autopilot scheduler state machine        ← tested
+  audio.js       — Web Audio API cue synthesizer (tick / warning / chime)
+  speech.js      — Speaker (TTS coaching) + VoiceCommander (recognition)             ← tested
+  ui.js          — View: owns the DOM cache and every DOM mutation (passive)
+  app.js         — Controller: thin event router, wires session ↔ view ↔ audio
+
 exercises/
   NN-<slug>/
     <slug>.jpeg                    — source photo this exercise was transcribed from
@@ -40,7 +48,7 @@ exercises/
     vector-1.png, vector-2.png…    — generated vector illustrations (animation frames)
 ```
 
-`data.js` is the only program data the app reads. (Earlier `program.json` and
+`src/data.js` is the only program data the app reads. (Earlier `program.json` and
 per-exercise `exercise.json` files were removed to eliminate three diverging
 copies of the same data.)
 
@@ -121,12 +129,14 @@ only — prescribed `hold_seconds` are never sped up.
 
 (IMG_7050 is intentionally missing from the source set.)
 
-## Known follow-ups (UI-tightening phase)
+## Known follow-ups
 
 - ~~Replace remaining native `alert()`/`confirm()` (side switches, set rests, exit)
   with in-app, non-blocking UI.~~ **Done** — the hands-free guided autopilot
   removed all per-rep clicking and blocking dialogs (see *Hands-free guided mode*).
+- ~~PWA: add a manifest + service worker to back the existing install meta tags.~~ **Done** — `sw.js` pre-caches the full app shell and first illustration frame for all 11 exercises on install.
+- ~~De-duplicate the repeated glass-card CSS into a shared `.card` base + tokens.~~ **Done** — unified `.card` glassmorphism base class used throughout `styles.css`.
 - Honest per-exercise progress (the dashboard radial is currently all-or-nothing
   per completed session).
-- PWA: add a manifest + service worker to back the existing install meta tags.
-- De-duplicate the repeated glass-card CSS into a shared `.card` base + tokens.
+- Expose pacing configuration UI in the dashboard settings so users can adjust
+  `DEFAULT_PACING` values without going to developer tools.

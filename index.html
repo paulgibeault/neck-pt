@@ -503,8 +503,8 @@
   </div>
 
 
-  <!-- App entry point (ES module graph: app → data / store / ui / engine / audio / format) -->
-  <script type="module" src="app.js"></script>
+  <!-- App entry point (ES module graph: src/app → data / store / session / ui / engine / audio / speech / format) -->
+  <script type="module" src="src/app.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

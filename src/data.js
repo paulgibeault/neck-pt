@@ -269,3 +269,48 @@ export const PROGRAM = {
     }
   ]
 };
+
+// Valid clinical exercise categories
+const VALID_CATEGORIES = new Set(['stretch', 'isometric', 'mobilization', 'nerve-glide', 'strengthening']);
+
+/**
+ * Validates the program schema at startup. Throws a descriptive Error if
+ * data.js has been edited incorrectly, so problems surface immediately
+ * rather than crashing mid-routine with a cryptic undefined read.
+ * @param {Object} program - The PROGRAM export to validate
+ * @returns {void}
+ */
+export function validateProgram(program) {
+  if (!program || !Array.isArray(program.exercises) || program.exercises.length === 0) {
+    throw new Error('[data] PROGRAM.exercises must be a non-empty array.');
+  }
+
+  program.exercises.forEach((ex, i) => {
+    const id = `exercises[${i}] "${ex.slug || '(no slug)'}"`;
+
+    if (typeof ex.slug !== 'string' || !ex.slug) throw new Error(`${id}: missing slug`);
+    if (typeof ex.title !== 'string' || !ex.title) throw new Error(`${id}: missing title`);
+    if (!VALID_CATEGORIES.has(ex.category)) {
+      throw new Error(`${id}: invalid category "${ex.category}". Must be one of: ${[...VALID_CATEGORIES].join(', ')}`);
+    }
+    if (typeof ex.folder !== 'string' || !ex.folder) throw new Error(`${id}: missing folder`);
+    if (typeof ex.unilateral !== 'boolean') throw new Error(`${id}: unilateral must be a boolean`);
+    if (typeof ex.example_image_count !== 'number' || ex.example_image_count < 1) {
+      throw new Error(`${id}: example_image_count must be a positive number`);
+    }
+    if (!ex.dosage || typeof ex.dosage !== 'object') throw new Error(`${id}: missing dosage`);
+
+    const d = ex.dosage;
+    const hasHold = d.hold_seconds !== null && d.hold_seconds !== undefined;
+    const hasReps = d.reps !== null && d.reps !== undefined;
+    if (!hasHold && !hasReps) {
+      throw new Error(`${id}: dosage must have either hold_seconds or reps`);
+    }
+    if (hasHold && typeof d.hold_seconds !== 'number') throw new Error(`${id}: dosage.hold_seconds must be a number`);
+    if (hasReps && (typeof d.reps !== 'object' || !('min' in d.reps) || !('max' in d.reps))) {
+      throw new Error(`${id}: dosage.reps must be an object with min and max`);
+    }
+    if (!ex.setup) throw new Error(`${id}: missing setup text`);
+    if (!ex.movement) throw new Error(`${id}: missing movement text`);
+  });
+}

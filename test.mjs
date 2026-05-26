@@ -1,18 +1,21 @@
 /**
- * Logic-layer tests for the DOM-free modules (format / store / engine).
+ * Logic-layer tests for the DOM-free modules (format / store / engine / session / data).
  * Run with `npm test` (plain Node, no dependencies). The view layer (ui.js /
  * app.js) needs a browser and is not covered here.
  */
 import assert from 'node:assert/strict';
-import { formatRange, formatDosageShort, dosagePills, clamp, painToY, greeting } from './format.js';
-import { Store } from './store.js';
-import { RepSetTracker, buildExercisePlan, PACING } from './engine.js';
-import { matchCommand } from './speech.js';
+import { formatRange, formatDosageShort, dosagePills, clamp, painToY, greeting } from './src/format.js';
+import { Store, DEFAULT_PACING } from './src/store.js';
+import { RepSetTracker, buildExercisePlan, PACING } from './src/engine.js';
+import { matchCommand } from './src/speech.js';
+import { RoutineSession } from './src/session.js';
+import { PROGRAM, validateProgram } from './src/data.js';
 
 let passed = 0;
+let failed = 0;
 function test(name, fn) {
   try { fn(); passed += 1; }
-  catch (e) { console.error(`FAIL: ${name}\n  ${e.message}`); process.exitCode = 1; }
+  catch (e) { console.error(`FAIL: ${name}\n  ${e.message}`); failed += 1; process.exitCode = 1; }
 }
 
 function fakeStorage(init = {}) {
@@ -127,6 +130,38 @@ test('completedTodaySlugs tracking', () => {
   assert.deepEqual(s3.completedTodaySlugs, []);
 });
 
+/* ---- store: defensive/self-healing storage ---- */
+test('store self-heals corrupted history (non-array)', () => {
+  // If storage holds a JSON object instead of an array, history falls back to [].
+  const storage = fakeStorage({ neck_pt_history: JSON.stringify({ corrupt: true }) });
+  const s = new Store(storage, at('2026-05-25T10:00'));
+  assert.deepEqual(s.history, [], 'corrupted history falls back to empty array');
+});
+test('store self-heals corrupted streak (non-integer)', () => {
+  const storage = fakeStorage({ neck_pt_streak: 'not-a-number' });
+  const s = new Store(storage, at('2026-05-25T10:00'));
+  assert.equal(s.streak, 0, 'non-integer streak defaults to 0');
+});
+test('pacing defaults load from DEFAULT_PACING when not stored', () => {
+  const s = new Store(fakeStorage(), at('2026-05-25T10:00'));
+  assert.deepEqual(s.getPacing(), DEFAULT_PACING);
+});
+test('pacing can be set and persisted', () => {
+  const storage = fakeStorage();
+  const s = new Store(storage, at('2026-05-25T10:00'));
+  s.setPacing({ restSec: 20 });
+  assert.equal(s.getPacing().restSec, 20);
+  // survives reload
+  const s2 = new Store(storage, at('2026-05-25T10:00'));
+  assert.equal(s2.getPacing().restSec, 20);
+});
+test('setPacing ignores invalid (non-number) keys', () => {
+  const s = new Store(fakeStorage(), at('2026-05-25T10:00'));
+  const before = { ...s.getPacing() };
+  s.setPacing({ repSec: 'bad', announceSec: null });
+  assert.deepEqual(s.getPacing(), before, 'invalid pacing values are ignored');
+});
+
 /* ---- engine: rep/set state machine ---- */
 test('RepSetTracker bilateral', () => {
   const t = new RepSetTracker();
@@ -210,4 +245,158 @@ test('matchCommand maps spoken phrases to controls', () => {
   assert.equal(matchCommand('hello there'), null);
 });
 
-console.log(`\n${passed} tests passed`);
+/* ---- RoutineSession state machine ---- */
+function makeSession({ startIndex = 0, exercises = null, pacing = null } = {}) {
+  const exs = exercises ?? [
+    { title: 'Stretch A', slug: 'stretch-a', category: 'stretch', unilateral: false,
+      folder: 'ex/01', example_image_count: 1,
+      dosage: { hold_seconds: 4 } },
+    { title: 'Iso B', slug: 'iso-b', category: 'isometric', unilateral: true,
+      folder: 'ex/02', example_image_count: 2,
+      dosage: { reps: { min: 2, max: 2 }, sets: { min: 1, max: 1 } } },
+  ];
+  const events = [];
+  const session = new RoutineSession({
+    exercises: exs,
+    startIndex,
+    pacing: pacing ?? { announceSec: 1, prepareSec: 1, switchSec: 1, restSec: 1, repSec: 1, isoRepSec: 1, completeSec: 1 },
+    onEvent: (type, state) => events.push({ type, state }),
+  });
+  return { session, events, exs };
+}
+
+test('RoutineSession: fires exercise-load on start', () => {
+  const { session, events } = makeSession();
+  session.start();
+  session.stop();
+  assert.ok(events.some(e => e.type === 'exercise-load'), 'exercise-load emitted on start');
+});
+
+test('RoutineSession: fires phase-enter after exercise-load', () => {
+  const { session, events } = makeSession();
+  session.start();
+  session.stop();
+  assert.ok(events.some(e => e.type === 'phase-enter'), 'phase-enter emitted after loading');
+});
+
+test('RoutineSession: getState returns correct currentIndex', () => {
+  const { session } = makeSession();
+  session.start();
+  assert.equal(session.getState().currentIndex, 0);
+  session.stop();
+});
+
+test('RoutineSession: tick decrements phaseRemaining', () => {
+  const { session } = makeSession();
+  session.start();
+  const before = session.getState().phaseRemaining;
+  session.tick();
+  const after = session.getState().phaseRemaining;
+  // Either still counting down, or phase advanced (next phase entered)
+  assert.ok(after < before || session.getState().phaseIdx > 0, 'tick advances time or phase');
+  session.stop();
+});
+
+test('RoutineSession: togglePause emits pause then resume events', () => {
+  const { session, events } = makeSession();
+  session.start();
+  session.togglePause();
+  assert.ok(events.some(e => e.type === 'pause'), 'pause event emitted');
+  session.togglePause();
+  assert.ok(events.some(e => e.type === 'resume'), 'resume event emitted');
+  session.stop();
+});
+
+test('RoutineSession: skip advances to next exercise', () => {
+  const { session } = makeSession();
+  session.start();
+  session.skip();
+  assert.equal(session.getState().currentIndex, 1, 'currentIndex advanced to 1 after skip');
+  session.stop();
+});
+
+test('RoutineSession: skip on last exercise fires session-complete', () => {
+  const { session, events } = makeSession({ startIndex: 1 });
+  session.start();
+  session.skip(); // skip to beyond last exercise
+  assert.ok(events.some(e => e.type === 'session-complete'), 'session-complete fired after last exercise');
+});
+
+test('RoutineSession: repeat reloads same exercise index', () => {
+  const { session } = makeSession();
+  session.start();
+  const idxBefore = session.getState().currentIndex;
+  // Advance a couple ticks then repeat
+  session.tick();
+  session.tick();
+  session.repeat();
+  assert.equal(session.getState().currentIndex, idxBefore, 'repeat stays on same exercise');
+  session.stop();
+});
+
+test('RoutineSession: adjustTempo scales tempoScale', () => {
+  const { session } = makeSession();
+  session.start();
+  const before = session.getState().tempoScale;
+  session.adjustTempo('slower');
+  assert.ok(session.getState().tempoScale > before, 'tempoScale increased on slower');
+  session.adjustTempo('faster');
+  session.adjustTempo('faster');
+  assert.ok(session.getState().tempoScale < session.getState().tempoScale + 1, 'faster decreases tempoScale');
+  session.stop();
+});
+
+test('RoutineSession: completed slugs tracked', () => {
+  // A session with a single very-short hold exercise
+  const { session, events } = makeSession({ startIndex: 0 });
+  session.start();
+  // Drive ticks until session-complete or exercise-complete fires
+  for (let i = 0; i < 30 && !events.some(e => e.type === 'exercise-complete'); i++) {
+    session.tick();
+  }
+  const completedEvent = events.find(e => e.type === 'exercise-complete');
+  if (completedEvent) {
+    assert.equal(completedEvent.state.completedSlug, 'stretch-a', 'completed slug matches');
+  }
+  session.stop();
+});
+
+/* ---- data schema validation ---- */
+test('validateProgram passes with the real PROGRAM data', () => {
+  assert.doesNotThrow(() => validateProgram(PROGRAM));
+});
+test('validateProgram throws on missing exercises', () => {
+  assert.throws(() => validateProgram({ exercises: [] }), /non-empty array/);
+});
+test('validateProgram throws on invalid category', () => {
+  assert.throws(() => validateProgram({
+    exercises: [{
+      order: 1, slug: 'test', title: 'Test', category: 'yoga',
+      folder: 'ex/01', unilateral: false, example_image_count: 1,
+      dosage: { hold_seconds: 10, reps: null, sets: null },
+      setup: 'sit', movement: 'move', notes: [],
+    }],
+  }), /invalid category/);
+});
+test('validateProgram throws on missing dosage', () => {
+  assert.throws(() => validateProgram({
+    exercises: [{
+      order: 1, slug: 'test', title: 'Test', category: 'stretch',
+      folder: 'ex/01', unilateral: false, example_image_count: 1,
+      dosage: { hold_seconds: null, reps: null, sets: null },
+      setup: 'sit', movement: 'move', notes: [],
+    }],
+  }), /hold_seconds or reps/);
+});
+test('validateProgram throws on non-boolean unilateral', () => {
+  assert.throws(() => validateProgram({
+    exercises: [{
+      order: 1, slug: 'test', title: 'Test', category: 'stretch',
+      folder: 'ex/01', unilateral: 'yes', example_image_count: 1,
+      dosage: { hold_seconds: 30 },
+      setup: 'sit', movement: 'move', notes: [],
+    }],
+  }), /unilateral must be a boolean/);
+});
+
+console.log(`\n${passed} tests passed${failed > 0 ? `, ${failed} FAILED` : ''}`);

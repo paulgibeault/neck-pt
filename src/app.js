@@ -1,62 +1,57 @@
 /**
- * Neck PT Companion - Controller.
+ * Neck PT Companion - Application Controller.
  *
- * Orchestrates the program flow and wires together the model (data + store),
- * the view (ui.js), the guided autopilot engine, audio cues and the speech
- * layer (TTS coaching + voice commands).
+ * Orchestrates routing, event wiring, and user-facing state by coordinating:
+ *   - data.js   → clinical program data
+ *   - store.js  → localStorage persistence
+ *   - ui.js     → all DOM mutations (view layer)
+ *   - session.js→ guided autopilot scheduler (DOM-free, fully testable)
+ *   - audio.js  → synthesized audio cues
+ *   - speech.js → TTS coaching + voice recognition
  *
- * Hands-free design: once a routine starts, a phase scheduler walks the whole
- * program automatically — announcing each exercise, counting reps, timing holds,
- * calling side switches, resting between sets and advancing exercises — speaking
- * every cue aloud. The user only intervenes to pause / skip / repeat / change
- * tempo, which they can do by voice, the spacebar, a tap, or the on-screen
- * buttons. No per-rep clicking and no blocking alert()/confirm() dialogs.
+ * This controller is intentionally thin: it translates RoutineSession events
+ * into view calls and maps user actions to session commands. No timers or
+ * scheduling live here.
  */
 
-import { PROGRAM } from './data.js';
+import { PROGRAM, validateProgram } from './data.js';
 import { audio } from './audio.js';
 import { Store } from './store.js';
 import { View } from './ui.js';
-import { buildExercisePlan } from './engine.js';
+import { RoutineSession } from './session.js';
 import { Speaker, VoiceCommander } from './speech.js';
 import { clamp, greeting as greetingNow } from './format.js';
 
 const FRAME_INTERVAL_MS = 4500;
-const TEMPO_STEP = 0.25;
-const TEMPO_MIN = 0.5;  // fastest (durations × 0.5)
-const TEMPO_MAX = 2.0;  // slowest (durations × 2)
 
 class NeckPTApp {
   constructor() {
+    // Validate program data at startup — surfaces any data.js editing mistakes
+    // before they can crash the player mid-routine.
+    validateProgram(PROGRAM);
+
     this.program = PROGRAM;
     this.exercises = [...PROGRAM.exercises].sort((a, b) => a.order - b.order);
 
     this.store = new Store();
     this.view = new View();
     this.speaker = new Speaker();
-    this.speaker.setMuted(this.store.getSpeechMuted()); // restore last mute preference
-    this.voice = null;          // lazily created on first routine (needs a user gesture)
-    this.voiceEnabled = false;  // off by default
+    this.speaker.setMuted(this.store.getSpeechMuted());
 
-    // transient session state
+    this.voice = null;        // lazily created on first routine (needs a user gesture)
+    this.voiceEnabled = false;
+
+    // Active routine session (null when not in a workout)
+    this.session = null;
+
+    // Transient navigation/animation state
     this.currentExIndex = 0;
     this.sessionActive = false;
     this.sessionStartTime = null;
     this.preSessionPain = 5;
-    this.currentSide = null;
     this.activeFrameIndex = 1;
     this.showingOriginal = false;
     this.animatorInterval = null;
-    this.completedExercisesInSession = new Set();
-
-    // guided autopilot state
-    this.guidedPlan = [];
-    this.guidedIdx = 0;
-    this.guidedRunning = false;
-    this.guidedTick = null;
-    this.phaseRemaining = 0;
-    this.phaseTotal = 0;
-    this.tempoScale = 1; // duration multiplier; >1 = slower, <1 = faster
 
     this.view.applyTheme(this.store.getTheme());
     this.bindEvents();
@@ -80,20 +75,23 @@ class NeckPTApp {
     d.btnSummaryBack.addEventListener('click', () => this.goDashboard());
     d.btnSummaryPlay.addEventListener('click', () => this.startGuidedRoutine(this.currentExIndex));
 
-    // Guided transport controls.
-    d.btnGuidedPause.addEventListener('click', () => this.toggleGuidedPause());
-    d.btnGuidedSkip.addEventListener('click', () => this.skipExercise());
-    d.btnGuidedBack.addEventListener('click', () => this.backExercise());
-    d.btnGuidedRepeat.addEventListener('click', () => this.repeatExercise());
-    d.btnGuidedSlower.addEventListener('click', () => this.adjustTempo('slower'));
-    d.btnGuidedFaster.addEventListener('click', () => this.adjustTempo('faster'));
+    // Guided transport controls delegate to the session object.
+    d.btnGuidedPause.addEventListener('click', () => this.session?.togglePause());
+    d.btnGuidedSkip.addEventListener('click', () => { this.speaker.speak('Skipping ahead.'); this.session?.skip(); });
+    d.btnGuidedBack.addEventListener('click', () => this.session?.back());
+    d.btnGuidedRepeat.addEventListener('click', () => { this.speaker.speak('Repeating.'); this.session?.repeat(); });
+    d.btnGuidedSlower.addEventListener('click', () => this.session?.adjustTempo('slower'));
+    d.btnGuidedFaster.addEventListener('click', () => this.session?.adjustTempo('faster'));
     d.btnGuidedVoice.addEventListener('click', () => this.toggleSpeech());
     d.btnGuidedMic.addEventListener('click', () => this.toggleMic());
-    // Tapping the big countdown ring is a quick pause/resume target.
-    d.timerContainer.addEventListener('click', () => this.toggleGuidedPause());
+    // Tapping the countdown ring is a quick pause/resume target.
+    d.timerContainer.addEventListener('click', () => this.session?.togglePause());
 
     d.btnExitRoutine.addEventListener('click', () => this.requestExit());
-    d.btnExitResume.addEventListener('click', () => { this.view.showExitConfirm(false); this.resumeGuided(); });
+    d.btnExitResume.addEventListener('click', () => {
+      this.view.showExitConfirm(false);
+      this.session?.togglePause(); // will resume since it's paused
+    });
     d.btnExitEnd.addEventListener('click', () => this.exitRoutine());
 
     // Both the button and tapping the illustration flip vector <-> example photo.
@@ -104,10 +102,13 @@ class NeckPTApp {
     d.btnSaveSession.addEventListener('click', () => this.saveRoutineSession());
     d.btnBackHome.addEventListener('click', () => this.goDashboard());
 
-    d.btnOpenStats.addEventListener('click', () => { this.view.showScreen('stats'); this.view.renderStats(this.store.history); });
+    d.btnOpenStats.addEventListener('click', () => {
+      this.view.showScreen('stats');
+      this.view.renderStats(this.store.history);
+    });
     d.btnCloseStats.addEventListener('click', () => this.goDashboard());
 
-    // Keyboard fallback (only while the routine screen is showing).
+    // Keyboard fallback (only active while the routine screen is showing).
     document.addEventListener('keydown', (e) => this.onKeyDown(e));
   }
 
@@ -122,14 +123,13 @@ class NeckPTApp {
   /* ---- dashboard ---- */
 
   goDashboard() {
-    this.stopGuided();
+    this._destroySession();
     this.view.showScreen('dashboard');
     this.store.refreshCompletedToday();
-    const completedToday = this.store.completedToday();
     const completedSlugs = this.store.completedTodaySlugs;
     this.view.renderDashboard({
       greeting: greetingNow(),
-      completedToday,
+      completedToday: this.store.completedToday(),
       completedCount: completedSlugs.length,
       completedSlugs,
       total: this.exercises.length,
@@ -151,7 +151,6 @@ class NeckPTApp {
     this.preSessionPain = clamp(parseInt(this.view.dom.prePainSlider.value, 10) || 0, 0, 10);
     this.sessionActive = true;
     this.sessionStartTime = new Date();
-    this.completedExercisesInSession = new Set();
     this.openExerciseSummary(0);
   }
 
@@ -167,8 +166,6 @@ class NeckPTApp {
 
   clinicianNote(ex) {
     const notes = [...(ex.notes || [])];
-    // Surface the "3-4\" holds" guidance for isometrics — but only if the
-    // exercise's own notes don't already mention it, so we never show it twice.
     if (ex.category === 'isometric' && this.program.clinician_notes) {
       const alreadyMentioned = notes.some((n) => n.includes('3-4" holds'));
       if (!alreadyMentioned) {
@@ -183,6 +180,7 @@ class NeckPTApp {
 
   renderFrame() {
     const ex = this.exercises[this.currentExIndex];
+    if (!ex) return;
     const kind = this.showingOriginal ? 'example' : 'vector';
     this.view.renderFrame(`${ex.folder}/${kind}-${this.activeFrameIndex}.png`, this.activeFrameIndex);
   }
@@ -223,105 +221,128 @@ class NeckPTApp {
     if (!this.sessionActive) {
       this.sessionActive = true;
       this.sessionStartTime = new Date();
-      this.completedExercisesInSession = new Set();
     }
+
     this.currentExIndex = fromIndex;
-    this.tempoScale = 1;
-    this.view.setTempoLabel(1 / this.tempoScale);
     this.view.showExitConfirm(false);
     this.view.setSpeechMuted(this.speaker.muted);
     this.view.showScreen('routine');
     this.startVoice();
-    if (!this.guidedTick) this.guidedTick = setInterval(() => this.guidedStep(), 1000);
-    this.loadGuidedExercise();
+
+    // Create the session with persisted pacing and listen for events.
+    this.session = new RoutineSession({
+      exercises: this.exercises,
+      startIndex: fromIndex,
+      pacing: this.store.getPacing(),
+      onEvent: (type, state) => this._onSessionEvent(type, state),
+    });
+    this.session.start();
   }
 
-  loadGuidedExercise() {
-    const ex = this.exercises[this.currentExIndex];
-    if (!ex) { this.finishGuidedRoutine(); return; }
+  /**
+   * Centralised RoutineSession event handler. Maps session state updates
+   * to view calls and audio/speech cues.
+   */
+  _onSessionEvent(type, state) {
+    switch (type) {
+      case 'exercise-load':
+        this._onExerciseLoad(state);
+        break;
 
-    this.guidedPlan = buildExercisePlan(ex);
-    this.guidedIdx = 0;
+      case 'phase-enter':
+        this._onPhaseEnter(state);
+        break;
 
-    this.view.renderRoutineMeta(ex, this.currentExIndex, this.exercises.length, this.clinicianNote(ex), 'guided');
+      case 'phase-tick':
+        this._onPhaseTick(state);
+        break;
+
+      case 'pause':
+        this.view.setGuidedPaused(true);
+        this.view.setBreathing('idle');
+        this.speaker.speak('Paused.');
+        break;
+
+      case 'resume': {
+        this.view.setGuidedPaused(false);
+        const { activePhase, phaseTotal, phaseRemaining } = state;
+        if (activePhase) {
+          this.view.renderGuidedPhase(this.phaseDisplay(activePhase), phaseTotal, phaseRemaining);
+          if (activePhase.breathing) this._updateBreath(state);
+        }
+        this.speaker.speak('Resuming.');
+        break;
+      }
+
+      case 'tempo-change':
+        this.view.setTempoLabel(1 / state.tempoScale);
+        break;
+
+      case 'hold-complete':
+        audio.playChime();
+        break;
+
+      case 'exercise-complete':
+        if (state.completedSlug) {
+          this.store.markExerciseCompletedToday(state.completedSlug);
+        }
+        break;
+
+      case 'session-complete':
+        this.speaker.speak('Routine complete. Great work.');
+        this._destroySession();
+        this.promptPostSessionSurvey();
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  /** Called when session loads a new exercise — syncs view meta, illustration, dots. */
+  _onExerciseLoad(state) {
+    const ex = state.activeExercise;
+    if (!ex) return;
+    this.currentExIndex = state.currentIndex;
+
+    this.view.renderRoutineMeta(
+      ex,
+      state.currentIndex,
+      this.exercises.length,
+      this.clinicianNote(ex),
+      'guided',
+    );
     this.activeFrameIndex = 1;
     this.showingOriginal = false;
     this.renderFrame();
     this.view.buildDots(ex.example_image_count, (i) => this.onDotClick(i));
     this.startFrameAnimator(ex.example_image_count);
 
-    this.guidedRunning = true;
     this.view.setGuidedPaused(false);
-    this.enterPhase();
+    this.view.setTempoLabel(1 / state.tempoScale);
   }
 
-  /** Duration of a phase after applying the user's tempo (holds stay prescribed). */
-  effectiveDuration(phase) {
-    const scalable = ['rep', 'prepare', 'switch', 'rest'].includes(phase.type);
-    return Math.max(1, Math.round(phase.durationSec * (scalable ? this.tempoScale : 1)));
+  /** Called each time a new coaching phase begins. */
+  _onPhaseEnter(state) {
+    const { activePhase, phaseTotal } = state;
+    if (!activePhase) return;
+
+    this.view.renderGuidedPhase(this.phaseDisplay(activePhase), phaseTotal);
+    this.speaker.speak(activePhase.say);
+
+    if (activePhase.type === 'rep' && !activePhase.isometric) audio.playTick();
+    if (activePhase.breathing) this._updateBreath(state);
+    else this.view.setBreathing('idle');
   }
 
-  enterPhase() {
-    const phase = this.guidedPlan[this.guidedIdx];
-    if (!phase) { this.advanceToNextExercise(); return; }
+  /** Called each 1-second tick of an active phase. */
+  _onPhaseTick(state) {
+    const { activePhase, phaseTotal, phaseRemaining } = state;
+    if (!activePhase) return;
 
-    this.currentSide = phase.side;
-    this.phaseTotal = this.effectiveDuration(phase);
-    this.phaseRemaining = this.phaseTotal;
-
-    this.view.renderGuidedPhase(this.phaseDisplay(phase), this.phaseTotal);
-    this.speaker.speak(phase.say);
-
-    if (phase.type === 'rep' && !phase.isometric) audio.playTick();
-    if (phase.breathing) this.updateBreath(); else this.view.setBreathing('idle');
-  }
-
-  guidedStep() {
-    if (!this.guidedRunning) return;
-    const phase = this.guidedPlan[this.guidedIdx];
-    if (!phase) return;
-
-    this.phaseRemaining -= 1;
-
-    if (this.phaseRemaining > 0) {
-      this.view.renderPhaseTime(this.phaseRemaining, this.phaseTotal);
-      if (phase.breathing) this.updateBreath();
-      if (phase.countdown && this.phaseRemaining <= 3) audio.playTick();
-      return;
-    }
-
-    // Phase finished.
-    if (phase.type === 'hold') audio.playChime();
-    this.nextPhase();
-  }
-
-  nextPhase() {
-    this.guidedIdx += 1;
-    if (this.guidedIdx >= this.guidedPlan.length) {
-      const ex = this.exercises[this.currentExIndex];
-      if (ex) {
-        this.completedExercisesInSession.add(ex.slug);
-        this.store.markExerciseCompletedToday(ex.slug);
-      }
-      this.advanceToNextExercise();
-    } else {
-      this.enterPhase();
-    }
-  }
-
-  advanceToNextExercise() {
-    this.currentExIndex += 1;
-    if (this.currentExIndex >= this.exercises.length) {
-      this.finishGuidedRoutine();
-    } else {
-      this.loadGuidedExercise();
-    }
-  }
-
-  finishGuidedRoutine() {
-    this.speaker.speak('Routine complete. Great work.');
-    this.stopGuided();
-    this.promptPostSessionSurvey();
+    this.view.renderPhaseTime(phaseRemaining, phaseTotal);
+    if (activePhase.breathing) this._updateBreath(state);
+    if (activePhase.countdown && phaseRemaining <= 3) audio.playTick();
   }
 
   /** Map a plan phase to the banner/ring display model. */
@@ -352,65 +373,22 @@ class NeckPTApp {
     }
   }
 
-  updateBreath() {
-    const elapsed = this.phaseTotal - this.phaseRemaining;
+  _updateBreath(state) {
+    const elapsed = state.phaseTotal - state.phaseRemaining;
     const inhaling = Math.floor(elapsed / 4) % 2 === 0;
     this.view.setBreathing(inhaling ? 'inhale' : 'exhale');
   }
 
-  /* ---- guided controls ---- */
-
-  toggleGuidedPause() {
-    if (!this.view.isRoutineActive()) return;
-    if (this.guidedRunning) this.pauseGuided();
-    else this.resumeGuided();
-  }
-
-  pauseGuided() {
-    if (!this.guidedRunning) return;
-    this.guidedRunning = false;
-    this.view.setGuidedPaused(true);
-    this.view.setBreathing('idle');
-    this.speaker.speak('Paused.');
-  }
-
-  resumeGuided() {
-    if (this.guidedRunning || !this.guidedPlan.length) return;
-    this.guidedRunning = true;
-    this.view.setGuidedPaused(false);
-    const phase = this.guidedPlan[this.guidedIdx];
-    if (phase) {
-      this.view.renderGuidedPhase(this.phaseDisplay(phase), this.phaseTotal, this.phaseRemaining);
-      if (phase.breathing) this.updateBreath();
+  /** Tear down the active RoutineSession and stop all timers. */
+  _destroySession() {
+    if (this.session) {
+      this.session.stop();
+      this.session = null;
     }
-    this.speaker.speak('Resuming.');
-  }
-
-  skipExercise() {
-    if (!this.view.isRoutineActive()) return;
-    this.speaker.speak('Skipping ahead.');
-    this.advanceToNextExercise();
-  }
-
-  backExercise() {
-    if (!this.view.isRoutineActive()) return;
-    // Past the opening announce → restart the current exercise; otherwise step back one.
-    if (this.guidedIdx > 1) { this.repeatExercise(); return; }
-    this.currentExIndex = Math.max(0, this.currentExIndex - 1);
-    this.loadGuidedExercise();
-  }
-
-  repeatExercise() {
-    if (!this.view.isRoutineActive()) return;
-    this.speaker.speak('Repeating.');
-    this.loadGuidedExercise();
-  }
-
-  adjustTempo(dir) {
-    const delta = dir === 'slower' ? TEMPO_STEP : -TEMPO_STEP;
-    this.tempoScale = clamp(Math.round((this.tempoScale + delta) * 100) / 100, TEMPO_MIN, TEMPO_MAX);
-    this.view.setTempoLabel(1 / this.tempoScale);
-    this.speaker.speak(dir === 'slower' ? 'Slower.' : 'Faster.');
+    this.stopFrameAnimator();
+    this.view.setBreathing('idle');
+    this.speaker.cancel();
+    if (this.voice) this.voice.stop();
   }
 
   /* ---- voice control ---- */
@@ -428,7 +406,7 @@ class NeckPTApp {
   /** Mute / unmute the spoken coaching (TTS). Tones from audio.js are unaffected. */
   toggleSpeech() {
     const muted = !this.speaker.muted;
-    this.speaker.setMuted(muted); // setMuted(true) also cancels any current utterance
+    this.speaker.setMuted(muted);
     this.store.setSpeechMuted(muted);
     this.view.setSpeechMuted(muted);
   }
@@ -449,13 +427,13 @@ class NeckPTApp {
   onVoiceCommand(cmd) {
     if (!this.view.isRoutineActive()) return;
     switch (cmd) {
-      case 'pause': this.pauseGuided(); break;
-      case 'resume': this.resumeGuided(); break;
-      case 'next': this.skipExercise(); break;
-      case 'back': this.backExercise(); break;
-      case 'repeat': this.repeatExercise(); break;
-      case 'slower': this.adjustTempo('slower'); break;
-      case 'faster': this.adjustTempo('faster'); break;
+      case 'pause':   this.session?.togglePause(); break;
+      case 'resume':  this.session?.togglePause(); break;
+      case 'next':    this.speaker.speak('Skipping ahead.'); this.session?.skip(); break;
+      case 'back':    this.session?.back(); break;
+      case 'repeat':  this.speaker.speak('Repeating.'); this.session?.repeat(); break;
+      case 'slower':  this.session?.adjustTempo('slower'); break;
+      case 'faster':  this.session?.adjustTempo('faster'); break;
       default: return;
     }
     this.view.flashVoiceCommand();
@@ -466,12 +444,12 @@ class NeckPTApp {
   onKeyDown(e) {
     if (!this.view.isRoutineActive()) return;
     switch (e.key) {
-      case ' ': case 'Spacebar': e.preventDefault(); this.toggleGuidedPause(); break;
-      case 'ArrowRight': this.skipExercise(); break;
-      case 'ArrowLeft': this.backExercise(); break;
-      case 'r': case 'R': this.repeatExercise(); break;
-      case '-': case '_': this.adjustTempo('slower'); break;
-      case '+': case '=': this.adjustTempo('faster'); break;
+      case ' ': case 'Spacebar': e.preventDefault(); this.session?.togglePause(); break;
+      case 'ArrowRight': this.speaker.speak('Skipping ahead.'); this.session?.skip(); break;
+      case 'ArrowLeft':  this.session?.back(); break;
+      case 'r': case 'R': this.speaker.speak('Repeating.'); this.session?.repeat(); break;
+      case '-': case '_': this.session?.adjustTempo('slower'); break;
+      case '+': case '=': this.session?.adjustTempo('faster'); break;
       case 'm': case 'M': this.toggleSpeech(); break;
       case 'Escape': this.requestExit(); break;
       default: break;
@@ -481,9 +459,9 @@ class NeckPTApp {
   /* ---- exit (inline confirm, no blocking dialog) ---- */
 
   requestExit() {
-    // If the user previously chose "Don't ask again", leave immediately.
     if (this.store.getExitConfirmDismissed()) { this.exitRoutine(); return; }
-    this.pauseGuided();
+    // Pause the session then show the confirm overlay.
+    if (this.session && this.session.running) this.session.togglePause();
     this.view.showExitConfirm(true);
   }
 
@@ -492,15 +470,6 @@ class NeckPTApp {
     this.sessionActive = false;
     this.view.showExitConfirm(false);
     this.goDashboard();
-  }
-
-  stopGuided() {
-    this.guidedRunning = false;
-    if (this.guidedTick) { clearInterval(this.guidedTick); this.guidedTick = null; }
-    this.stopFrameAnimator();
-    this.view.setBreathing('idle');
-    this.speaker.cancel();
-    if (this.voice) this.voice.stop();
   }
 
   /* ---- completion ---- */
@@ -514,8 +483,7 @@ class NeckPTApp {
   saveRoutineSession() {
     const postPain = clamp(parseInt(this.view.dom.painSlider.value, 10) || 0, 0, 10);
     const durationMinutes = Math.max(1, Math.round((Date.now() - this.sessionStartTime) / 60000));
-
-    const completedCount = this.completedExercisesInSession ? this.completedExercisesInSession.size : this.exercises.length;
+    const completedCount = this.store.completedTodaySlugs.length;
 
     const { streak } = this.store.recordSession({
       date: new Date().toISOString(),
@@ -525,11 +493,7 @@ class NeckPTApp {
       exercises_completed: completedCount,
     });
 
-    this.view.showCompletionSummary({
-      durationMinutes,
-      painDelta: postPain - this.preSessionPain,
-      streak,
-    });
+    this.view.showCompletionSummary({ durationMinutes, painDelta: postPain - this.preSessionPain, streak });
     audio.playChime();
   }
 }
