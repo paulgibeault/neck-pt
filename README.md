@@ -67,7 +67,7 @@ copies of the same data.)
   "setup": "…",
   "movement": "…",
   "tip": "…" | null,
-  "notes": ["Handwritten by clinician: 3-4\" holds"]
+  "notes": ["3-4\" holds"]
 }
 ```
 

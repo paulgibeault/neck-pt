@@ -69,6 +69,8 @@ class NeckPTApp {
     const d = this.view.dom;
 
     d.btnTheme.addEventListener('click', () => this.toggleTheme());
+    document.getElementById('btn-routine-theme')?.addEventListener('click', () => this.toggleTheme());
+    document.getElementById('btn-summary-theme')?.addEventListener('click', () => this.toggleTheme());
 
     d.btnStartSession.addEventListener('click', () => this.openPrePain());
     d.btnPrePainBack.addEventListener('click', () => this.goDashboard());

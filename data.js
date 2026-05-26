@@ -91,7 +91,7 @@ export const PROGRAM = {
       "movement": "Gently tuck your chin. Place your hand on your temple and gently apply pressure, using your neck muscles to keep your head steady.",
       "tip": "Do not let your head tilt or rotate during the exercise.",
       "notes": [
-        "Handwritten by clinician: 3-4\" holds"
+        "3-4\" holds"
       ]
     },
     {
@@ -114,7 +114,7 @@ export const PROGRAM = {
       "movement": "Place your hand on the side of your face, then try to turn your head, resisting the motion with your hand. Hold, then relax and repeat.",
       "tip": "There should be little to no movement. Make sure to keep your back straight during the exercise.",
       "notes": [
-        "Handwritten by clinician: 3-4\" holds"
+        "3-4\" holds"
       ]
     },
     {

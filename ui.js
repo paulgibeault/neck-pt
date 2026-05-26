@@ -151,6 +151,19 @@ export class View {
   showScreen(name) {
     Object.values(this.screens).forEach((s) => s.classList.remove('active'));
     this.screens[name]?.classList.add('active');
+
+    // Toggle header views: active workout gets the routine stepper header view
+    const isRoutine = name === 'routine';
+    const headerBrand = document.getElementById('header-brand-view');
+    const headerRoutine = document.getElementById('header-routine-view');
+    if (headerBrand && headerRoutine) {
+      headerBrand.classList.toggle('active', !isRoutine);
+      headerRoutine.classList.toggle('active', isRoutine);
+    }
+
+    // Toggle immersive mode (which hides the top header completely) for summary/survey/pre-pain
+    const isImmersive = ['summary', 'completion', 'prePain'].includes(name);
+    this.dom.body.classList.toggle('immersive-mode', isImmersive);
   }
 
   /* ---- dashboard ---- */
