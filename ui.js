@@ -95,6 +95,7 @@ export class View {
       gcVoiceOffIcon: $('gc-voice-off-icon'),
       guidedControlsSecondary: document.querySelector('.guided-controls-secondary'),
       exitConfirm: $('guided-exit-confirm'),
+      exitDismissCheck: $('exit-confirm-dismiss-check'),
       btnExitResume: $('btn-exit-resume'),
       btnExitEnd: $('btn-exit-end'),
 
@@ -167,8 +168,9 @@ export class View {
     this.dom.exercisesContainer.innerHTML = '';
     model.exercises.forEach((ex, idx) => {
       const card = document.createElement('div');
-      card.className = `exercise-card ${model.completedToday ? 'completed' : ''}`;
-      const status = model.completedToday ? '✓' : idx + 1;
+      const isCompleted = model.completedSlugs ? model.completedSlugs.includes(ex.slug) : model.completedToday;
+      card.className = `exercise-card card ${isCompleted ? 'completed' : ''}`;
+      const status = isCompleted ? '✓' : idx + 1;
       card.innerHTML = `
         <div class="ex-thumb">
           <img src="${ex.folder}/vector-1.png" alt="" loading="lazy">
@@ -287,7 +289,9 @@ export class View {
   }
 
   showExitConfirm(show) {
-    this.dom.exitConfirm.style.display = show ? 'block' : 'none';
+    this.dom.exitConfirm.style.display = show ? 'flex' : 'none';
+    // Reset the "don't ask again" tick each time the sheet opens.
+    if (show && this.dom.exitDismissCheck) this.dom.exitDismissCheck.checked = false;
   }
 
   isRoutineActive() {
@@ -334,7 +338,16 @@ export class View {
   /* ---- frames / illustration ---- */
 
   renderFrame(src, activeIndex) {
-    this.dom.activeIllustration.src = src;
+    const img = this.dom.activeIllustration;
+    // Crossfade: fade out, swap, fade back in once the new frame is paint-ready.
+    // (CSS gives #routine-active-illustration an opacity transition.)
+    if (img.getAttribute('src') !== src) {
+      img.style.opacity = '0';
+      img.src = src;
+      const reveal = () => { img.style.opacity = '1'; };
+      if (img.decode) img.decode().then(reveal).catch(reveal);
+      else img.onload = reveal;
+    }
     this.dom.frameDotsContainer.querySelectorAll('.frame-dot').forEach((dot, i) => {
       dot.classList.toggle('active', i === activeIndex - 1);
     });

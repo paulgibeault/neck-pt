@@ -21,7 +21,7 @@ import { buildExercisePlan } from './engine.js';
 import { Speaker, VoiceCommander } from './speech.js';
 import { clamp, greeting as greetingNow } from './format.js';
 
-const FRAME_INTERVAL_MS = 1800;
+const FRAME_INTERVAL_MS = 4500;
 const TEMPO_STEP = 0.25;
 const TEMPO_MIN = 0.5;  // fastest (durations × 0.5)
 const TEMPO_MAX = 2.0;  // slowest (durations × 2)
@@ -47,6 +47,7 @@ class NeckPTApp {
     this.activeFrameIndex = 1;
     this.showingOriginal = false;
     this.animatorInterval = null;
+    this.completedExercisesInSession = new Set();
 
     // guided autopilot state
     this.guidedPlan = [];
@@ -121,11 +122,14 @@ class NeckPTApp {
   goDashboard() {
     this.stopGuided();
     this.view.showScreen('dashboard');
+    this.store.refreshCompletedToday();
     const completedToday = this.store.completedToday();
+    const completedSlugs = this.store.completedTodaySlugs;
     this.view.renderDashboard({
       greeting: greetingNow(),
       completedToday,
-      completedCount: completedToday ? this.exercises.length : 0,
+      completedCount: completedSlugs.length,
+      completedSlugs,
       total: this.exercises.length,
       streak: this.store.streak,
       activeMinutes: this.store.totalActiveMinutes(),
@@ -145,6 +149,7 @@ class NeckPTApp {
     this.preSessionPain = clamp(parseInt(this.view.dom.prePainSlider.value, 10) || 0, 0, 10);
     this.sessionActive = true;
     this.sessionStartTime = new Date();
+    this.completedExercisesInSession = new Set();
     this.openExerciseSummary(0);
   }
 
@@ -160,9 +165,14 @@ class NeckPTApp {
 
   clinicianNote(ex) {
     const notes = [...(ex.notes || [])];
+    // Surface the "3-4\" holds" guidance for isometrics — but only if the
+    // exercise's own notes don't already mention it, so we never show it twice.
     if (ex.category === 'isometric' && this.program.clinician_notes) {
-      const iso = this.program.clinician_notes.find((n) => n.includes('3-4" holds'));
-      if (iso && !notes.includes(iso)) notes.push(iso);
+      const alreadyMentioned = notes.some((n) => n.includes('3-4" holds'));
+      if (!alreadyMentioned) {
+        const iso = this.program.clinician_notes.find((n) => n.includes('3-4" holds'));
+        if (iso) notes.push(iso);
+      }
     }
     return notes.length ? notes.join(' • ') : null;
   }
@@ -211,6 +221,7 @@ class NeckPTApp {
     if (!this.sessionActive) {
       this.sessionActive = true;
       this.sessionStartTime = new Date();
+      this.completedExercisesInSession = new Set();
     }
     this.currentExIndex = fromIndex;
     this.tempoScale = 1;
@@ -284,8 +295,16 @@ class NeckPTApp {
 
   nextPhase() {
     this.guidedIdx += 1;
-    if (this.guidedIdx >= this.guidedPlan.length) this.advanceToNextExercise();
-    else this.enterPhase();
+    if (this.guidedIdx >= this.guidedPlan.length) {
+      const ex = this.exercises[this.currentExIndex];
+      if (ex) {
+        this.completedExercisesInSession.add(ex.slug);
+        this.store.markExerciseCompletedToday(ex.slug);
+      }
+      this.advanceToNextExercise();
+    } else {
+      this.enterPhase();
+    }
   }
 
   advanceToNextExercise() {
@@ -460,11 +479,14 @@ class NeckPTApp {
   /* ---- exit (inline confirm, no blocking dialog) ---- */
 
   requestExit() {
+    // If the user previously chose "Don't ask again", leave immediately.
+    if (this.store.getExitConfirmDismissed()) { this.exitRoutine(); return; }
     this.pauseGuided();
     this.view.showExitConfirm(true);
   }
 
   exitRoutine() {
+    if (this.view.dom.exitDismissCheck?.checked) this.store.setExitConfirmDismissed(true);
     this.sessionActive = false;
     this.view.showExitConfirm(false);
     this.goDashboard();
@@ -491,12 +513,14 @@ class NeckPTApp {
     const postPain = clamp(parseInt(this.view.dom.painSlider.value, 10) || 0, 0, 10);
     const durationMinutes = Math.max(1, Math.round((Date.now() - this.sessionStartTime) / 60000));
 
+    const completedCount = this.completedExercisesInSession ? this.completedExercisesInSession.size : this.exercises.length;
+
     const { streak } = this.store.recordSession({
       date: new Date().toISOString(),
       duration_minutes: durationMinutes,
       pre_pain: this.preSessionPain,
       post_pain: postPain,
-      exercises_completed: this.exercises.length,
+      exercises_completed: completedCount,
     });
 
     this.view.showCompletionSummary({

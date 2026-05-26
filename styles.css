@@ -227,17 +227,22 @@ main {
 }
 
 /* Dashboard Layout */
-.progress-card {
+/* Glassmorphism Card Base */
+.card {
   background: var(--bg-card);
   backdrop-filter: var(--backdrop-blur);
   -webkit-backdrop-filter: var(--backdrop-blur);
   border: 1px solid var(--border-color);
   border-radius: 20px;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-smooth);
+}
+
+.progress-card {
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  box-shadow: var(--shadow-md);
 }
 
 .progress-summary {
@@ -390,17 +395,12 @@ main {
 }
 
 .exercise-card {
-  background: var(--bg-card);
-  backdrop-filter: var(--backdrop-blur);
-  -webkit-backdrop-filter: var(--backdrop-blur);
-  border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 12px 16px;
   display: flex;
   align-items: center;
   gap: 12px;
   cursor: pointer;
-  transition: var(--transition-smooth);
   position: relative;
 }
 
@@ -551,16 +551,10 @@ main {
 
 /* Left Column: Visual demonstration */
 .routine-visual-card {
-  background: var(--bg-card);
-  backdrop-filter: var(--backdrop-blur);
-  -webkit-backdrop-filter: var(--backdrop-blur);
-  border: 1px solid var(--border-color);
-  border-radius: 20px;
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  box-shadow: var(--shadow-md);
   position: relative;
 }
 
@@ -592,6 +586,8 @@ main {
 /* The active routine illustration is tappable: vector <-> example photo */
 #routine-active-illustration {
   cursor: pointer;
+  /* Frames crossfade rather than hard-cut (see ui.js renderFrame). */
+  transition: opacity 0.5s ease;
 }
 
 /* Image scrubber frame indicators */
@@ -655,15 +651,10 @@ main {
 
 /* Right Column: Routine Tracking controls */
 .routine-tracking-card {
-  background: var(--bg-card);
-  backdrop-filter: var(--backdrop-blur);
-  border: 1px solid var(--border-color);
-  border-radius: 20px;
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  box-shadow: var(--shadow-md);
 }
 
 .ex-info-block {
@@ -975,21 +966,52 @@ main {
 }
 .guided-voice-hint b { color: var(--text-primary); font-weight: 700; }
 
-/* Inline exit confirmation — replaces the old blocking confirm() dialog. */
+/* Exit confirmation — a centered modal sheet over a dimmed backdrop, so it reads
+   as a deliberate confirmation rather than stray text tacked under the controls. */
 .guided-exit-confirm {
-  margin-top: 14px;
-  padding: 14px;
-  border: 1px solid var(--border-color);
-  border-radius: 14px;
-  background: var(--bg-card);
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  /* display toggled flex/none from JS */
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.55);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+.exit-confirm-card {
+  width: min(360px, 100%);
+  padding: 22px;
+  border-radius: 18px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
   text-align: center;
-  font-size: 0.9rem;
   color: var(--text-primary);
 }
+.exit-confirm-title {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.exit-confirm-sub {
+  margin: 0 0 16px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.exit-confirm-dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.exit-confirm-dismiss input { cursor: pointer; }
 .exit-confirm-actions {
   display: flex;
   gap: 10px;
-  margin-top: 10px;
 }
 .exit-confirm-actions .btn-secondary,
 .exit-confirm-actions .btn-danger { flex: 1; padding: 12px; }
@@ -1040,13 +1062,7 @@ main {
 /* Full-width card holding the instructions, so the text spans the whole
    screen instead of being trapped in the narrow tracking column. */
 .routine-instruction-card {
-  background: var(--bg-card);
-  backdrop-filter: var(--backdrop-blur);
-  -webkit-backdrop-filter: var(--backdrop-blur);
-  border: 1px solid var(--border-color);
-  border-radius: 20px;
   padding: 20px;
-  box-shadow: var(--shadow-md);
 }
 
 /* Text Instruction Details — readable, scannable exercise steps */
@@ -1209,10 +1225,6 @@ main {
 }
 
 .chart-card {
-  background: var(--bg-card);
-  backdrop-filter: var(--backdrop-blur);
-  border: 1px solid var(--border-color);
-  border-radius: 20px;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -1241,10 +1253,6 @@ main {
 }
 
 .pain-scale-input-card {
-  background: var(--bg-card);
-  backdrop-filter: var(--backdrop-blur);
-  border: 1px solid var(--border-color);
-  border-radius: 20px;
   padding: 20px;
   text-align: center;
   display: flex;
@@ -1340,9 +1348,6 @@ main {
 
 /* Completion Screen Style */
 .completion-card {
-  background: var(--bg-card);
-  backdrop-filter: var(--backdrop-blur);
-  border: 1px solid var(--border-color);
   border-radius: 24px;
   padding: 32px 24px;
   text-align: center;

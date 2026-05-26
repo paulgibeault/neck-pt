@@ -13,6 +13,9 @@ const KEYS = {
   lastDate: 'neck_pt_last_date',
   theme: 'neck_pt_theme',
   speechMuted: 'neck_pt_speech_muted',
+  exitConfirmDismissed: 'neck_pt_exit_confirm_dismissed',
+  completedTodaySlugs: 'neck_pt_completed_today_slugs',
+  completedTodayDate: 'neck_pt_completed_today_date',
 };
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -39,7 +42,11 @@ export class Store {
     this.streak = parseInt(this.storage.getItem(KEYS.streak), 10) || 0;
     this.lastDate = this.storage.getItem(KEYS.lastDate) || null;
 
+    this.completedTodaySlugs = this._readJSON(KEYS.completedTodaySlugs, []);
+    this.completedTodayDate = this.storage.getItem(KEYS.completedTodayDate) || null;
+
     this.refreshStreak();
+    this.refreshCompletedToday();
   }
 
   _readJSON(key, fallback) {
@@ -60,6 +67,24 @@ export class Store {
     if (gap >= 2 || gap < 0) {
       this.streak = 0;
       this.storage.setItem(KEYS.streak, '0');
+    }
+  }
+
+  refreshCompletedToday() {
+    const today = dayKey(this.now());
+    if (this.completedTodayDate !== today) {
+      this.completedTodaySlugs = [];
+      this.completedTodayDate = today;
+      this.storage.setItem(KEYS.completedTodaySlugs, JSON.stringify([]));
+      this.storage.setItem(KEYS.completedTodayDate, today);
+    }
+  }
+
+  markExerciseCompletedToday(slug) {
+    this.refreshCompletedToday();
+    if (!this.completedTodaySlugs.includes(slug)) {
+      this.completedTodaySlugs.push(slug);
+      this.storage.setItem(KEYS.completedTodaySlugs, JSON.stringify(this.completedTodaySlugs));
     }
   }
 
@@ -120,5 +145,14 @@ export class Store {
 
   setSpeechMuted(muted) {
     this.storage.setItem(KEYS.speechMuted, muted ? '1' : '0');
+  }
+
+  /* ---- "skip the exit confirmation" preference (persists across sessions) ---- */
+  getExitConfirmDismissed() {
+    return this.storage.getItem(KEYS.exitConfirmDismissed) === '1';
+  }
+
+  setExitConfirmDismissed(dismissed) {
+    this.storage.setItem(KEYS.exitConfirmDismissed, dismissed ? '1' : '0');
   }
 }

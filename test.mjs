@@ -84,12 +84,36 @@ test('streak: second session same day unchanged', () => {
   }), at('2026-05-22T20:00'));
   assert.equal(s.recordSession({ duration_minutes: 5 }).streak, 4);
 });
+test('exit-confirm dismissed preference persists', () => {
+  const storage = fakeStorage();
+  const s = new Store(storage, at('2026-05-25T10:00'));
+  assert.equal(s.getExitConfirmDismissed(), false, 'defaults to showing the confirm');
+  s.setExitConfirmDismissed(true);
+  assert.equal(s.getExitConfirmDismissed(), true);
+  // survives a reload
+  assert.equal(new Store(storage, at('2026-05-25T10:00')).getExitConfirmDismissed(), true);
+});
 test('completedToday', () => {
   const s = new Store(fakeStorage(), at('2026-05-22T20:00'));
   s.history = [{ date: new Date('2026-05-22T08:00').toISOString() }];
   assert.equal(s.completedToday(), true);
   s.history = [{ date: new Date('2026-05-21T08:00').toISOString() }];
   assert.equal(s.completedToday(), false);
+});
+test('completedTodaySlugs tracking', () => {
+  const storage = fakeStorage();
+  const s = new Store(storage, at('2026-05-25T10:00'));
+  assert.deepEqual(s.completedTodaySlugs, []);
+  s.markExerciseCompletedToday('seated-levator-scapulae-stretch');
+  assert.deepEqual(s.completedTodaySlugs, ['seated-levator-scapulae-stretch']);
+  
+  // survives reload
+  const s2 = new Store(storage, at('2026-05-25T10:30'));
+  assert.deepEqual(s2.completedTodaySlugs, ['seated-levator-scapulae-stretch']);
+  
+  // clears on next day
+  const s3 = new Store(storage, at('2026-05-26T08:00'));
+  assert.deepEqual(s3.completedTodaySlugs, []);
 });
 
 /* ---- engine: rep/set state machine ---- */
