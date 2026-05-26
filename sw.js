@@ -1,4 +1,4 @@
-const CACHE_NAME = "neck-pt-v1";
+const CACHE_NAME = "neck-pt-v3";
 const ASSETS = [
   "./",
   "./index.html",

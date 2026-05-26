@@ -341,7 +341,7 @@ export class View {
     const img = this.dom.activeIllustration;
     // Crossfade: fade out, swap, fade back in once the new frame is paint-ready.
     // (CSS gives #routine-active-illustration an opacity transition.)
-    if (img.getAttribute('src') !== src) {
+    if (img && img.getAttribute('src') !== src) {
       img.style.opacity = '0';
       img.src = src;
       const reveal = () => { img.style.opacity = '1'; };
@@ -364,11 +364,12 @@ export class View {
     }
   }
 
-  // `showingOriginal` true = the example photo is on screen, so offer the drawing.
   setOriginalToggle(showingOriginal) {
-    this.dom.btnToggleOriginal.innerHTML = showingOriginal
-      ? `${SVG_PEN} View Drawing`
-      : `${SVG_PHOTO} View Photo`;
+    if (this.dom.btnToggleOriginal) {
+      this.dom.btnToggleOriginal.innerHTML = showingOriginal
+        ? `${SVG_PEN} View Drawing`
+        : `${SVG_PHOTO} View Photo`;
+    }
   }
 
   /* ---- completion ---- */

@@ -95,8 +95,8 @@ class NeckPTApp {
     d.btnExitEnd.addEventListener('click', () => this.exitRoutine());
 
     // Both the button and tapping the illustration flip vector <-> example photo.
-    d.btnToggleOriginal.addEventListener('click', () => this.toggleOriginal());
-    d.activeIllustration.addEventListener('click', () => this.toggleOriginal());
+    d.btnToggleOriginal?.addEventListener('click', () => this.toggleOriginal());
+    d.activeIllustration?.addEventListener('click', () => this.toggleOriginal());
 
     d.painSlider.addEventListener('input', (e) => { d.painValueDisplay.textContent = e.target.value; });
     d.btnSaveSession.addEventListener('click', () => this.saveRoutineSession());

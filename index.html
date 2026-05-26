@@ -141,10 +141,18 @@
         </div>
 
         <div class="routine-grid">
-          <!-- Left Column: Visual demonstration preview -->
+          <!-- Left Column: Visual demonstration preview with floating Start button overlay -->
           <div class="routine-visual-card card">
             <div class="canvas-visual-wrapper">
               <img id="summary-preview-illustration" src="" alt="Exercise Demonstration Preview">
+              
+              <!-- Floating Start Exercise Play Button Overlay -->
+              <button id="btn-summary-play" class="btn-summary-play-overlay" title="Start Hands-Free Routine">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="6 4 20 12 6 20 6 4"></polygon>
+                </svg>
+                <span>Start Routine</span>
+              </button>
             </div>
           </div>
 
@@ -192,14 +200,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Start Exercise Play Button (full width, below the brief) -->
-        <button id="btn-summary-play" class="btn-primary">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="5 3 19 12 5 21 5 3"></polygon>
-          </svg>
-          Start Hands-Free Routine
-        </button>
       </section>
 
       <!-- SCREEN 2: ACTIVE ROUTINE STEPPER -->
@@ -218,38 +218,30 @@
         <!-- Main Routine Work Grid -->
         <div class="routine-grid">
 
-          <!-- Column 1: Visual demonstration with the integrated player (timer + transport) -->
+          <!-- Column 1: Unified Hero Display (Single Central Reference + Overlaid Timer, Status, and Controls) -->
           <div class="routine-visual-card card">
-            <!-- View Original Toggle -->
-            <button id="btn-toggle-original-photo" class="original-toggle-btn">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="16" x2="12" y2="12"></line>
-                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-              </svg>
-              View Original Printout
-            </button>
-
-            <!-- Interactive Illustration Canvas -->
             <div class="canvas-visual-wrapper">
-              <img id="routine-active-illustration" src="" alt="Exercise Demonstration">
-            </div>
+              <!-- Centered Reference Illustration (tappable to toggle vector <-> original photo) -->
+              <img id="routine-active-illustration" class="active-illustration centered-reference" src="" alt="Exercise Reference">
 
-            <!-- Carousel Scrubbers -->
-            <div id="routine-frame-dots-container" class="frame-indicator-bar">
-              <!-- Dots injected dynamically -->
-            </div>
+              <!-- Floating View Original Photo Toggle Badge (Top Right) -->
+              <button id="btn-toggle-original-photo" class="original-toggle-btn floating-toggle-overlay">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <span>View Photo</span>
+              </button>
 
-            <!-- Player deck: status, countdown, and transport live with the image -->
-            <div class="routine-player">
-              <!-- Hands-free guided status banner: the single thing you glance at -->
-              <div id="guided-status" class="guided-status">
+              <!-- Overlaid Status Banner (Top Center) -->
+              <div id="guided-status" class="guided-status status-overlay">
                 <div id="guided-status-label" class="guided-status-label">Get Ready</div>
                 <div id="guided-status-sub" class="guided-status-sub"></div>
               </div>
 
-              <!-- Dynamic Interactive Timer / Click Counter Area -->
-              <div class="timer-container">
+              <!-- Overlaid Interactive Timer Widget (Bottom Right) -->
+              <div class="timer-container timer-overlay">
                 <!-- Breathing Guide Expanding Circle (Pulsing background) -->
                 <div id="breathing-ring" class="breathing-ring"></div>
 
@@ -261,36 +253,41 @@
                   </svg>
                   <div class="timer-display">
                     <span id="timer-digits" class="timer-digits">30</span>
-                    <span id="timer-subtext" class="timer-subtext">seconds</span>
+                    <span id="timer-subtext" class="timer-subtext">sec</span>
                   </div>
                 </div>
               </div>
 
-              <!-- Reps & Sets counter display (for isometrics/nerve glides) -->
-              <div id="reps-sets-interactive-box" class="reps-sets-interactive-box">
-                <div>
-                  <div class="rep-box-title">Reps Left</div>
-                  <div id="active-rep-count" class="rep-box-val">5</div>
-                </div>
-                <div>
-                  <div class="rep-box-title">Sets Left</div>
-                  <div id="active-set-count" class="rep-box-val">2</div>
-                </div>
-                <button id="btn-rep-tick" class="rep-completion-btn">Complete Repetition (Hold 3s)</button>
-              </div>
-
-              <!-- Hands-free control bar (primary = big pause) -->
-              <div class="guided-controls">
+              <!-- Overlaid Floating Transport Bar (Bottom Center) -->
+              <div class="guided-controls controls-overlay">
                 <button id="btn-guided-back" class="gc-btn" title="Restart / previous exercise" aria-label="Restart or go to previous exercise">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
                 </button>
                 <button id="btn-guided-pause" class="gc-btn gc-primary" title="Pause / resume (Space)" aria-label="Pause or resume">
-                  <svg id="gc-pause-icon" width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"></rect><rect x="14" y="5" width="4" height="14"></rect></svg>
-                  <svg id="gc-play-icon" width="30" height="30" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+                  <svg id="gc-pause-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"></rect><rect x="14" y="5" width="4" height="14"></rect></svg>
+                  <svg id="gc-play-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
                 </button>
                 <button id="btn-guided-skip" class="gc-btn" title="Skip to next exercise" aria-label="Skip to next exercise">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 5 22 12 13 19 13 5"></polygon><polygon points="2 5 11 12 2 19 2 5"></polygon></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 5 22 12 13 19 13 5"></polygon><polygon points="2 5 11 12 2 19 2 5"></polygon></svg>
                 </button>
+              </div>
+
+              <!-- Overlaid Carousel Dot Scrubbers (Bottom Left) -->
+              <div id="routine-frame-dots-container" class="frame-indicator-bar frame-dots-overlay">
+                <!-- Dots injected dynamically -->
+              </div>
+
+              <!-- Reps & Sets counter display overlay (for isometrics/nerve glides) -->
+              <div id="reps-sets-interactive-box" class="reps-sets-interactive-box reps-sets-overlay" style="display:none;">
+                <div class="rep-stat-col">
+                  <span class="rep-box-title">Reps Left</span>
+                  <span id="active-rep-count" class="rep-box-val">5</span>
+                </div>
+                <div class="rep-stat-col">
+                  <span class="rep-box-title">Sets Left</span>
+                  <span id="active-set-count" class="rep-box-val">2</span>
+                </div>
+                <button id="btn-rep-tick" class="rep-completion-btn">Complete Rep (Hold 3s)</button>
               </div>
             </div>
           </div>

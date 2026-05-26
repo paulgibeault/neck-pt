@@ -576,52 +576,367 @@ main {
   background: #111827;
 }
 
-.canvas-visual-wrapper img {
+/* Centered single visual illustration/photo reference presented centrally */
+.canvas-visual-wrapper img.active-illustration {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  padding: 16px;
   transition: opacity 0.5s ease;
+  display: block;
 }
 
-/* The active routine illustration is tappable: vector <-> example photo */
-#routine-active-illustration {
-  cursor: pointer;
-  /* Frames crossfade rather than hard-cut (see ui.js renderFrame). */
-  transition: opacity 0.5s ease;
+.canvas-visual-wrapper img.centered-reference {
+  max-width: 100%;
+  max-height: 100%;
 }
 
-/* Image scrubber frame indicators */
-.frame-indicator-bar {
+/* Floating View Original Photo Toggle Badge (Top Right) */
+.floating-toggle-overlay {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  padding: 6px 14px;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   display: flex;
-  justify-content: center;
+  align-items: center;
   gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  transition: var(--transition-fast);
 }
 
-.frame-dot {
-  width: 8px;
-  height: 8px;
+.floating-toggle-overlay:hover {
+  background: rgba(15, 23, 42, 0.8);
+  transform: scale(1.03);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.floating-toggle-overlay:active {
+  transform: scale(0.97);
+}
+
+/* Floating Summary Start Exercise Play Button Overlay (Absolute Center) */
+.btn-summary-play-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  background: linear-gradient(135deg, var(--color-brand), var(--color-accent));
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(13, 148, 136, 0.4);
+  transition: var(--transition-smooth);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-summary-play-overlay:hover {
+  transform: translate(-50%, -52%) scale(1.04);
+  box-shadow: 0 14px 35px rgba(13, 148, 136, 0.55);
+  filter: brightness(1.05);
+}
+
+.btn-summary-play-overlay:active {
+  transform: translate(-50%, -50%) scale(0.96);
+}
+
+/* Pulse ring animation around the play button */
+.btn-summary-play-overlay::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 999px;
+  border: 2px solid var(--color-brand);
+  opacity: 0;
+  animation: playPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes playPulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.12); opacity: 0; }
+}
+
+/* Glassmorphic Overlays on top of the Hero Visual Canvas */
+
+/* Floating Status Pill (Top Center) */
+.status-overlay {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  padding: 6px 18px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-width: 180px;
+  transition: var(--transition-smooth);
+}
+
+.status-overlay .guided-status-label {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.status-overlay .guided-status-sub {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 2px;
+  min-height: auto;
+}
+
+/* Pause state warning highlight */
+.status-overlay.is-paused {
+  background: rgba(245, 158, 11, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Floating Timer Complication (Bottom Right) */
+.timer-overlay {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  width: 96px;
+  height: 96px;
+  z-index: 10;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 50%;
-  background: var(--border-color);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  padding: 0 !important;
+}
+
+.timer-overlay:hover {
+  transform: scale(1.04);
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.timer-overlay:active {
+  transform: scale(0.96);
+}
+
+.timer-overlay .timer-circle-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.timer-overlay .timer-digits {
+  font-size: 1.8rem;
+  color: #ffffff;
+  font-weight: 700;
+  font-family: var(--font-sans);
+}
+
+.timer-overlay .timer-subtext {
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: -2px;
+}
+
+.timer-overlay .breathing-ring {
+  position: absolute;
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.timer-overlay .breathing-ring.inhale {
+  transform: scale(1.16);
+  border-color: rgba(20, 184, 166, 0.6);
+  background: rgba(20, 184, 166, 0.06);
+}
+
+.timer-overlay .breathing-ring.exhale {
+  transform: scale(0.9);
+  border-color: rgba(56, 189, 248, 0.6);
+  background: rgba(56, 189, 248, 0.06);
+}
+
+/* Floating Transport Bar (Bottom Center) */
+.controls-overlay {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+  margin-top: 0 !important;
+}
+
+.controls-overlay .gc-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: var(--transition-fast);
 }
 
-.frame-dot.active {
-  background: var(--color-brand);
-  width: 20px;
-  border-radius: 4px;
+.controls-overlay .gc-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #ffffff;
 }
 
-/* Player deck — status banner, countdown ring, and transport controls grouped
-   directly beneath the illustration so the image + timer + buttons read as one
-   unit. A hairline rule separates the reference image from the live controls. */
-.routine-player {
+.controls-overlay .gc-primary {
+  width: 50px;
+  height: 50px;
+  border: none;
+  background: linear-gradient(135deg, var(--color-brand), var(--color-accent));
+  color: #ffffff;
+}
+
+.controls-overlay .gc-primary.is-paused {
+  background: linear-gradient(135deg, var(--color-warning), #f97316);
+}
+
+/* Floating Carousel dot indicator indicators (Bottom Left) */
+.frame-dots-overlay {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 10;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  padding: 6px 10px;
+  margin-top: 0 !important;
+}
+
+.frame-dots-overlay .frame-dot {
+  background: rgba(255, 255, 255, 0.3);
+  width: 6px;
+  height: 6px;
+}
+
+.frame-dots-overlay .frame-dot.active {
+  background: #ffffff;
+  width: 14px;
+}
+
+/* Interactive sets/reps box overlay (for isometrics) */
+.reps-sets-overlay {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  z-index: 10;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-radius: 14px;
+  padding: 10px 14px !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+}
+
+.reps-sets-overlay .rep-stat-col {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-top: 14px;
-  margin-top: 2px;
-  border-top: 1px solid var(--border-color);
+  align-items: center;
+}
+
+.reps-sets-overlay .rep-box-title {
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.reps-sets-overlay .rep-box-val {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: -1px;
+}
+
+.reps-sets-overlay .rep-completion-btn {
+  grid-column: 1 / -1;
+  padding: 8px;
+  font-size: 0.8rem;
+  border-radius: 8px;
+  background: var(--color-brand);
+  color: white;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.reps-sets-overlay .rep-completion-btn:hover {
+  background: #0f766e;
+}
+
+/* Carousel indicators bar */
+.frame-indicator-bar {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
 }
 
 /* Toggle reference controls */
@@ -1068,17 +1383,43 @@ main {
 /* Text Instruction Details — readable, scannable exercise steps */
 .routine-instruction-details {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
   gap: 12px;
+  padding: 4px 4px 12px 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.routine-instruction-details::-webkit-scrollbar {
+  height: 6px;
+}
+
+.routine-instruction-details::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.routine-instruction-details::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 10px;
+}
+
+.routine-instruction-details .detail-section {
+  flex: 0 0 88%;
+  scroll-snap-align: start;
+  margin: 0;
 }
 
 /* On wide screens the three steps sit side by side across the full width,
-   keeping each column at a comfortable reading measure. */
+   keeping each column at a comfortable reading measure. Scroll snap is disabled. */
 @media (min-width: 768px) {
   .routine-instruction-details {
     flex-direction: row;
+    overflow-x: visible;
+    scroll-snap-type: none;
     align-items: stretch;
     gap: 14px;
+    padding: 0;
   }
   .routine-instruction-details .detail-section {
     flex: 1;
