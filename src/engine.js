@@ -121,21 +121,19 @@ export function buildExercisePlan(ex, pacing = PACING) {
   const sides = ex.unilateral ? ['left', 'right'] : [null];
   const phases = [];
 
-  phases.push({
-    type: 'announce',
-    durationSec: pacing.announceSec,
-    side: sides[0],
-    countdown: false,
-    breathing: false,
-    say: ex.unilateral
-      ? `${ex.title}. Starting on the ${sideWord(sides[0])} side.`
-      : `${ex.title}.`,
-  });
-
   if (d.hold_seconds) {
     sides.forEach((side, i) => {
       phases.push(i === 0
-        ? { type: 'prepare', side, durationSec: pacing.prepareSec, countdown: true, breathing: false, say: 'Get into position.' }
+        ? {
+            type: 'prepare',
+            side,
+            durationSec: pacing.prepareSec,
+            countdown: true,
+            breathing: false,
+            say: ex.unilateral
+              ? `${ex.title}. Starting on the ${sideWord(side)} side. Get into position.`
+              : `${ex.title}. Get into position.`,
+          }
         : { type: 'switch', side, durationSec: pacing.switchSec, countdown: true, breathing: false, say: `Switch to the ${sideWord(side)} side. Get into position.` });
       phases.push({
         type: 'hold', side, durationSec: d.hold_seconds, countdown: true, breathing: true,
@@ -151,7 +149,16 @@ export function buildExercisePlan(ex, pacing = PACING) {
     for (let s = 1; s <= sets; s++) {
       sides.forEach((side, si) => {
         if (s === 1 && si === 0) {
-          phases.push({ type: 'prepare', side, durationSec: pacing.prepareSec, countdown: true, breathing: false, say: 'Get into position.' });
+          phases.push({
+            type: 'prepare',
+            side,
+            durationSec: pacing.prepareSec,
+            countdown: true,
+            breathing: false,
+            say: ex.unilateral
+              ? `${ex.title}. Starting on the ${sideWord(side)} side. Get into position.`
+              : `${ex.title}. Get into position.`,
+          });
         } else if (si > 0) {
           phases.push({ type: 'switch', side, durationSec: pacing.switchSec, countdown: true, breathing: false, say: `Switch to the ${sideWord(side)} side.` });
         } else {

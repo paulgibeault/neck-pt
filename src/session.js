@@ -41,9 +41,9 @@ export class RoutineSession {
   /**
    * Start the scheduler tick and load the initial exercise.
    */
-  start() {
+  start(autoplay = true) {
     if (this.intervalId) return;
-    this.running = true;
+    this.running = autoplay;
     this.loadExercise();
     this.intervalId = setInterval(() => this.tick(), 1000);
   }

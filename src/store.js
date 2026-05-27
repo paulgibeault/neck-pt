@@ -26,6 +26,7 @@ const KEYS = {
   completedTodaySlugs: 'neck_pt_completed_today_slugs',
   completedTodayDate: 'neck_pt_completed_today_date',
   pacing: 'neck_pt_pacing_config',
+  autoplay: 'neck_pt_autoplay',
 };
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -230,5 +231,15 @@ export class Store {
     if (this.storage) {
       this.storage.setItem(KEYS.pacing, JSON.stringify(this.pacing));
     }
+  }
+
+  /* ---- autoplay configurations (defaults to false / open paused) ---- */
+  getAutoplay() {
+    const val = this._readString(KEYS.autoplay, null);
+    return val === null ? false : val === '1';
+  }
+
+  setAutoplay(autoplay) {
+    if (this.storage) this.storage.setItem(KEYS.autoplay, autoplay ? '1' : '0');
   }
 }

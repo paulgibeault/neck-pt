@@ -115,6 +115,14 @@
               <div class="stat-label">Active Time</div>
             </div>
           </div>
+          
+          <div class="dashboard-options-row">
+            <span class="option-label">Autoplay Exercises</span>
+            <label class="switch-toggle">
+              <input type="checkbox" id="chk-autoplay">
+              <span class="switch-slider"></span>
+            </label>
+          </div>
 
           <button id="btn-start-session" class="btn-primary">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
@@ -162,113 +170,6 @@
         </div>
       </section>
 
-      <!-- SCREEN 5: EXERCISE SUMMARY PREVIEW -->
-      <section id="screen-summary" class="screen">
-        <div class="routine-grid" style="margin-top: 16px;">
-          <!-- Left Column: Visual demonstration preview with floating Start/Back buttons -->
-          <div class="routine-visual-card card">
-            <div class="canvas-visual-wrapper">
-              <!-- Floating Back & Theme Buttons (Top Left) -->
-              <div style="position: absolute; top: 16px; left: 16px; z-index: 10; display: flex; gap: 8px;">
-                <button id="btn-summary-back" class="icon-btn floating-back-overlay" title="Back to Dashboard" aria-label="Back to dashboard" style="position: static; box-shadow: none;">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                </button>
-                <button id="btn-summary-theme" class="icon-btn floating-back-overlay" title="Toggle Theme" aria-label="Toggle theme" style="position: static; width: 36px; height: 36px; box-shadow: none; padding: 0;">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                  </svg>
-                </button>
-              </div>
-
-              <img id="summary-preview-illustration" class="active-illustration centered-reference" src="" alt="Exercise Demonstration Preview">
-              
-              <!-- Floating Start Exercise Play Button Overlay (Top Right) -->
-              <button id="btn-summary-play" class="btn-summary-play-overlay" title="Start Hands-Free Routine">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <polygon points="6 4 20 12 6 20 6 4"></polygon>
-                </svg>
-                <span>Start Routine</span>
-              </button>
-
-              <!-- Floating View Original Photo Toggle Badge (Top Right, shifted left to avoid Start Routine button) -->
-              <button id="btn-summary-toggle-original-photo" class="original-toggle-btn floating-toggle-overlay summary-toggle-original-photo">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="16" x2="12" y2="12"></line>
-                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                </svg>
-                <span>View Photo</span>
-              </button>
-
-              <!-- Subtle Left/Right Manual Carousel Navigation Buttons -->
-              <button id="btn-summary-prev-frame" class="frame-nav-btn prev-btn" aria-label="Previous image" style="display: none;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-              </button>
-              <button id="btn-summary-next-frame" class="frame-nav-btn next-btn" aria-label="Next image" style="display: none;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-              </button>
-
-              <!-- Overlaid Carousel Dot Scrubbers (Bottom Left) -->
-              <div id="summary-frame-dots-container" class="frame-indicator-bar frame-dots-overlay">
-                <!-- Dots injected dynamically -->
-              </div>
-            </div>
-          </div>
-
-          <!-- Right Column: Exercise meta -->
-          <div class="routine-tracking-card card">
-            <div class="ex-info-block">
-              <div class="ex-info-category" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-                <span id="summary-badge" class="ex-badge badge-stretch">Stretch</span>
-                <span id="summary-step-counter" class="step-indicator">Ex 1 of 11</span>
-              </div>
-              <h2 id="summary-title" class="ex-info-title">Seated Upper Trapezius Stretch</h2>
-              <div id="summary-dosage-pills" class="dosage-pills-row">
-                <!-- Dosage info dynamically added -->
-              </div>
-            </div>
-
-            <!-- Handwritten note -->
-            <div id="summary-clinician-note" class="clinician-handwritten-note">
-              3-4" holds
-            </div>
-          </div>
-        </div>
-
-        <!-- Setup/Movement details span the full screen width -->
-        <div class="routine-instruction-card card">
-          <div class="routine-instruction-details">
-            <div class="detail-section detail-setup">
-              <div class="detail-head">
-                <span class="detail-step-num">1</span>
-                <span class="detail-label">Setup</span>
-              </div>
-              <p id="summary-detail-setup" class="detail-content">Begin sitting upright...</p>
-            </div>
-            <div class="detail-section detail-movement">
-              <div class="detail-head">
-                <span class="detail-step-num">2</span>
-                <span class="detail-label">Movement</span>
-              </div>
-              <p id="summary-detail-movement" class="detail-content">Rotate head...</p>
-            </div>
-            <div id="summary-detail-tip-box" class="detail-section detail-tip">
-              <div class="detail-head">
-                <span class="detail-icon">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path></svg>
-                </span>
-                <span class="detail-label">Clinician Tip</span>
-              </div>
-              <p id="summary-detail-tip" class="detail-content">Back straight...</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <!-- SCREEN 2: ACTIVE ROUTINE STEPPER -->
       <section id="screen-routine" class="screen">
 
@@ -299,13 +200,12 @@
               </div>
 
               <!-- Floating View Original Photo Toggle Badge (Top Right) -->
-              <button id="btn-toggle-original-photo" class="original-toggle-btn floating-toggle-overlay">
+              <button id="btn-toggle-original-photo" class="original-toggle-btn floating-toggle-overlay" aria-label="View Photo" title="View Photo">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="12" cy="12" r="10"></circle>
                   <line x1="12" y1="16" x2="12" y2="12"></line>
                   <line x1="12" y1="8" x2="12.01" y2="8"></line>
                 </svg>
-                <span>View Photo</span>
               </button>
 
               <!-- Overlaid Status Banner (Top Center) -->

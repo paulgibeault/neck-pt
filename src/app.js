@@ -54,6 +54,9 @@ class NeckPTApp {
     this.animatorInterval = null;
 
     this.view.applyTheme(this.store.getTheme());
+    if (this.view.dom.chkAutoplay) {
+      this.view.dom.chkAutoplay.checked = this.store.getAutoplay();
+    }
     this.bindEvents();
     this.goDashboard();
   }
@@ -65,15 +68,12 @@ class NeckPTApp {
 
     d.btnTheme.addEventListener('click', () => this.toggleTheme());
     document.getElementById('btn-routine-theme')?.addEventListener('click', () => this.toggleTheme());
-    document.getElementById('btn-summary-theme')?.addEventListener('click', () => this.toggleTheme());
 
     d.btnStartSession.addEventListener('click', () => this.openPrePain());
     d.btnPrePainBack.addEventListener('click', () => this.goDashboard());
     d.prePainSlider.addEventListener('input', (e) => this.view.setPrePain(e.target.value));
     d.btnPrePainBegin.addEventListener('click', () => this.beginSession());
-
-    d.btnSummaryBack.addEventListener('click', () => this.goDashboard());
-    d.btnSummaryPlay.addEventListener('click', () => this.startGuidedRoutine(this.currentExIndex));
+    d.chkAutoplay?.addEventListener('change', (e) => this.store.setAutoplay(e.target.checked));
 
     // Guided transport controls delegate to the session object.
     d.btnGuidedPause.addEventListener('click', () => this.session?.togglePause());
@@ -97,22 +97,12 @@ class NeckPTApp {
     // Both the button and tapping the illustration flip vector <-> example photo.
     d.btnToggleOriginal?.addEventListener('click', () => this.toggleOriginal());
     d.activeIllustration?.addEventListener('click', () => this.toggleOriginal());
-    d.btnSummaryToggleOriginal?.addEventListener('click', () => this.toggleOriginal());
-    d.summaryPreview?.addEventListener('click', () => this.toggleOriginal());
 
     d.btnPrevFrame?.addEventListener('click', (e) => {
       e.stopPropagation();
       this.onPrevFrame();
     });
     d.btnNextFrame?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.onNextFrame();
-    });
-    d.btnSummaryPrevFrame?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.onPrevFrame();
-    });
-    d.btnSummaryNextFrame?.addEventListener('click', (e) => {
       e.stopPropagation();
       this.onNextFrame();
     });
@@ -155,7 +145,7 @@ class NeckPTApp {
       streak: this.store.streak,
       activeMinutes: this.store.totalActiveMinutes(),
       exercises: this.exercises,
-    }, (idx) => { audio.init(); this.openExerciseSummary(idx); });
+    }, (idx) => { audio.init(); this.startGuidedRoutine(idx); });
   }
 
   /* ---- pre-session pain ---- */
@@ -170,23 +160,7 @@ class NeckPTApp {
     this.preSessionPain = clamp(parseInt(this.view.dom.prePainSlider.value, 10) || 0, 0, 10);
     this.sessionActive = true;
     this.sessionStartTime = new Date();
-    this.openExerciseSummary(0);
-  }
-
-  /* ---- summary ---- */
-
-  openExerciseSummary(idx) {
-    this.currentExIndex = idx;
-    const ex = this.exercises[idx];
-    if (!ex) return;
-    this.view.renderSummary(ex, idx, this.exercises.length, this.clinicianNote(ex));
-    this.view.showScreen('summary');
-
-    this.activeFrameIndex = 1;
-    this.showingOriginal = false;
-    this.view.buildDots(ex.example_image_count, (i) => this.onDotClick(i), 'summary');
-    this.renderFrame();
-    this.startFrameAnimator(ex.example_image_count);
+    this.startGuidedRoutine(0);
   }
 
   clinicianNote(ex) {
@@ -207,8 +181,7 @@ class NeckPTApp {
     const ex = this.exercises[this.currentExIndex];
     if (!ex) return;
     const kind = this.showingOriginal ? 'example' : 'vector';
-    const mode = this.view.isSummaryActive() ? 'summary' : 'routine';
-    this.view.renderFrame(`${ex.folder}/${kind}-${this.activeFrameIndex}.png`, this.activeFrameIndex, mode);
+    this.view.renderFrame(`${ex.folder}/${kind}-${this.activeFrameIndex}.png`, this.activeFrameIndex);
   }
 
   startFrameAnimator(count) {
@@ -249,8 +222,7 @@ class NeckPTApp {
 
   toggleOriginal() {
     this.showingOriginal = !this.showingOriginal;
-    const mode = this.view.isSummaryActive() ? 'summary' : 'routine';
-    this.view.setOriginalToggle(this.showingOriginal, mode);
+    this.view.setOriginalToggle(this.showingOriginal);
     this.renderFrame();
   }
 
@@ -278,7 +250,7 @@ class NeckPTApp {
       pacing: this.store.getPacing(),
       onEvent: (type, state) => this._onSessionEvent(type, state),
     });
-    this.session.start();
+    this.session.start(this.store.getAutoplay());
   }
 
   /**
@@ -312,7 +284,12 @@ class NeckPTApp {
           this.view.renderGuidedPhase(this.phaseDisplay(activePhase), phaseTotal, phaseRemaining);
           if (activePhase.breathing) this._updateBreath(state);
         }
-        this.speaker.speak('Resuming.');
+        const elapsed = phaseTotal - phaseRemaining;
+        if (elapsed === 0 && activePhase) {
+          this.speaker.speak(activePhase.say);
+        } else {
+          this.speaker.speak('Resuming.');
+        }
         break;
       }
 
@@ -360,7 +337,7 @@ class NeckPTApp {
     this.view.buildDots(ex.example_image_count, (i) => this.onDotClick(i));
     this.stopFrameAnimator();
 
-    this.view.setGuidedPaused(false);
+    this.view.setGuidedPaused(!state.running);
     this.view.setTempoLabel(1 / state.tempoScale);
   }
 
@@ -370,7 +347,9 @@ class NeckPTApp {
     if (!activePhase) return;
 
     this.view.renderGuidedPhase(this.phaseDisplay(activePhase), phaseTotal);
-    this.speaker.speak(activePhase.say);
+    if (state.running) {
+      this.speaker.speak(activePhase.say);
+    }
 
     if (activePhase.type === 'rep' && !activePhase.isometric) audio.playTick();
     if (activePhase.breathing) this._updateBreath(state);

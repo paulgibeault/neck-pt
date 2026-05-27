@@ -31,30 +31,13 @@ export class View {
       statTime: $('stat-time'),
       btnStartSession: $('btn-start-session'),
       exercisesContainer: $('exercises-container'),
+      chkAutoplay: $('chk-autoplay'),
 
       // pre-session pain
       prePainSlider: $('pre-pain-slider'),
       prePainValue: $('pre-pain-value'),
       btnPrePainBegin: $('btn-pre-pain-begin'),
       btnPrePainBack: $('btn-pre-pain-back'),
-
-      // summary
-      btnSummaryBack: $('btn-summary-back'),
-      summaryBadge: $('summary-badge'),
-      summaryStepCounter: $('summary-step-counter'),
-      summaryPreview: $('summary-preview-illustration'),
-      summaryTitle: $('summary-title'),
-      summaryDosagePills: $('summary-dosage-pills'),
-      summaryClinicianNote: $('summary-clinician-note'),
-      summaryDetailSetup: $('summary-detail-setup'),
-      summaryDetailMovement: $('summary-detail-movement'),
-      summaryDetailTipBox: $('summary-detail-tip-box'),
-      summaryDetailTip: $('summary-detail-tip'),
-      btnSummaryPlay: $('btn-summary-play'),
-      btnSummaryToggleOriginal: $('btn-summary-toggle-original-photo'),
-      btnSummaryPrevFrame: $('btn-summary-prev-frame'),
-      btnSummaryNextFrame: $('btn-summary-next-frame'),
-      summaryFrameDotsContainer: $('summary-frame-dots-container'),
 
       // routine
       btnExitRoutine: $('btn-exit-routine'),
@@ -135,7 +118,6 @@ export class View {
     this.screens = {
       dashboard: $('screen-dashboard'),
       prePain: $('screen-pre-pain'),
-      summary: $('screen-summary'),
       routine: $('screen-routine'),
       completion: $('screen-completion'),
       stats: $('screen-stats'),
@@ -169,7 +151,7 @@ export class View {
     }
 
     // Toggle immersive mode (which hides the top header completely) for summary/survey/pre-pain
-    const isImmersive = ['summary', 'completion', 'prePain'].includes(name);
+    const isImmersive = ['completion', 'prePain'].includes(name);
     this.dom.body.classList.toggle('immersive-mode', isImmersive);
   }
 
@@ -213,26 +195,6 @@ export class View {
   setPrePain(value) {
     this.dom.prePainSlider.value = value;
     this.dom.prePainValue.textContent = value;
-  }
-
-  isSummaryActive() {
-    return this.screens.summary.classList.contains('active');
-  }
-
-  /* ---- summary ---- */
-
-  renderSummary(ex, idx, total, clinicianNote) {
-    this.dom.summaryStepCounter.textContent = `Ex ${idx + 1} of ${total}`;
-    this.dom.summaryBadge.textContent = ex.category;
-    this.dom.summaryBadge.className = `ex-badge badge-${ex.category}`;
-    this.dom.summaryTitle.textContent = ex.title;
-    this.dom.summaryPreview.src = `${ex.folder}/vector-1.png`;
-    this.dom.summaryDetailSetup.textContent = ex.setup || 'Neutral sitting posture.';
-    this.dom.summaryDetailMovement.textContent = ex.movement;
-    this._setTip(this.dom.summaryDetailTipBox, this.dom.summaryDetailTip, ex.tip);
-    this._renderPills(this.dom.summaryDosagePills, dosagePills(ex.dosage));
-    this._setNote(this.dom.summaryClinicianNote, clinicianNote);
-    this.setOriginalToggle(false, 'summary');
   }
 
   /* ---- routine ---- */
@@ -379,9 +341,9 @@ export class View {
 
   /* ---- frames / illustration ---- */
 
-  renderFrame(src, activeIndex, mode = 'routine') {
-    const img = mode === 'summary' ? this.dom.summaryPreview : this.dom.activeIllustration;
-    const dotsContainer = mode === 'summary' ? this.dom.summaryFrameDotsContainer : this.dom.frameDotsContainer;
+  renderFrame(src, activeIndex) {
+    const img = this.dom.activeIllustration;
+    const dotsContainer = this.dom.frameDotsContainer;
     // Crossfade: fade out, swap, fade back in once the new frame is paint-ready.
     if (img && img.getAttribute('src') !== src) {
       img.style.opacity = '0';
@@ -397,9 +359,9 @@ export class View {
     }
   }
 
-  setFrameNavVisibility(visible, mode = 'routine') {
-    const btnPrev = mode === 'summary' ? this.dom.btnSummaryPrevFrame : this.dom.btnPrevFrame;
-    const btnNext = mode === 'summary' ? this.dom.btnSummaryNextFrame : this.dom.btnNextFrame;
+  setFrameNavVisibility(visible) {
+    const btnPrev = this.dom.btnPrevFrame;
+    const btnNext = this.dom.btnNextFrame;
     if (btnPrev && btnNext) {
       const displayStyle = visible ? 'flex' : 'none';
       btnPrev.style.display = displayStyle;
@@ -407,12 +369,12 @@ export class View {
     }
   }
 
-  buildDots(count, onDotClick, mode = 'routine') {
-    const dotsContainer = mode === 'summary' ? this.dom.summaryFrameDotsContainer : this.dom.frameDotsContainer;
+  buildDots(count, onDotClick) {
+    const dotsContainer = this.dom.frameDotsContainer;
     if (!dotsContainer) return;
     dotsContainer.innerHTML = '';
     const hasMultiple = count > 1;
-    this.setFrameNavVisibility(hasMultiple, mode);
+    this.setFrameNavVisibility(hasMultiple);
     if (!hasMultiple) return;
     for (let i = 1; i <= count; i++) {
       const dot = document.createElement('div');
@@ -422,12 +384,13 @@ export class View {
     }
   }
 
-  setOriginalToggle(showingOriginal, mode = 'routine') {
-    const btnToggle = mode === 'summary' ? this.dom.btnSummaryToggleOriginal : this.dom.btnToggleOriginal;
+  setOriginalToggle(showingOriginal) {
+    const btnToggle = this.dom.btnToggleOriginal;
     if (btnToggle) {
-      btnToggle.innerHTML = showingOriginal
-        ? `${SVG_PEN} View Drawing`
-        : `${SVG_PHOTO} View Photo`;
+      btnToggle.innerHTML = showingOriginal ? SVG_PEN : SVG_PHOTO;
+      const label = showingOriginal ? 'View Drawing' : 'View Photo';
+      btnToggle.setAttribute('aria-label', label);
+      btnToggle.setAttribute('title', label);
     }
   }
 

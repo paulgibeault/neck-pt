@@ -189,7 +189,6 @@ test('plan: unilateral hold (both sides, no scaling of the hold)', () => {
     dosage: { hold_seconds: 30 } };
   const plan = buildExercisePlan(ex);
   const t = countTypes(plan);
-  assert.equal(t.announce, 1);
   assert.equal(t.prepare, 1);   // first side prepares
   assert.equal(t.switch, 1);    // one switch to the second side
   assert.equal(t.hold, 2);      // one hold per side
@@ -270,6 +269,13 @@ test('RoutineSession: fires exercise-load on start', () => {
   session.start();
   session.stop();
   assert.ok(events.some(e => e.type === 'exercise-load'), 'exercise-load emitted on start');
+});
+
+test('RoutineSession: start with autoplay=false opens paused', () => {
+  const { session } = makeSession();
+  session.start(false);
+  assert.equal(session.getState().running, false, 'should open paused when autoplay is false');
+  session.stop();
 });
 
 test('RoutineSession: fires phase-enter after exercise-load', () => {
