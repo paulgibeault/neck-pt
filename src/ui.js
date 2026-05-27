@@ -126,6 +126,20 @@ export class View {
     // Initialise ring dasharrays from computed circumferences.
     this.dom.radialFill.setAttribute('stroke-dasharray', `${RADIAL_C} ${RADIAL_C}`);
     this.dom.timerProgressFill.setAttribute('stroke-dasharray', `${TIMER_C} ${TIMER_C}`);
+
+    // Initialise instructions tabs listeners (mobile tabbed mode)
+    const tabBtns = document.querySelectorAll('.instruction-tabs-bar .tab-btn');
+    const instructionCard = document.querySelector('.routine-instruction-card');
+    tabBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        const tabName = btn.getAttribute('data-tab');
+        if (instructionCard) {
+          instructionCard.setAttribute('data-active-tab', tabName);
+        }
+      });
+    });
   }
 
   /* ---- theme & routing ---- */
@@ -212,6 +226,22 @@ export class View {
     this._setNote(this.dom.handwrittenNote, clinicianNote);
 
     this.setOriginalToggle(false);
+
+    // Reset active tab to Setup on mobile
+    const instructionCard = document.querySelector('.routine-instruction-card');
+    if (instructionCard) {
+      instructionCard.setAttribute('data-active-tab', 'setup');
+    }
+    const tabBtns = document.querySelectorAll('.instruction-tabs-bar .tab-btn');
+    tabBtns.forEach((b) => {
+      b.classList.toggle('active', b.getAttribute('data-tab') === 'setup');
+    });
+
+    // Hide or show the Tip tab button based on whether ex has a tip
+    const tabBtnTip = document.getElementById('tab-btn-tip');
+    if (tabBtnTip) {
+      tabBtnTip.style.display = ex.tip ? 'flex' : 'none';
+    }
 
     // Hands-free guided mode drives one universal countdown ring for every
     // phase (get-ready / hold / rep / rest), so the manual rep button and its

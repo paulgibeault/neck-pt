@@ -321,7 +321,19 @@
         </div>
 
         <!-- Full Setup/Movement details span the full screen width -->
-        <div class="routine-instruction-card card">
+        <div class="routine-instruction-card card" data-active-tab="setup">
+          <!-- Instructions Tab Bar (Visible on mobile only) -->
+          <div class="instruction-tabs-bar">
+            <button class="tab-btn active" data-tab="setup">
+              <span class="tab-num">1</span> Setup
+            </button>
+            <button class="tab-btn" data-tab="movement">
+              <span class="tab-num">2</span> Movement
+            </button>
+            <button class="tab-btn" id="tab-btn-tip" data-tab="tip">
+              <span class="tab-icon">💡</span> Tip
+            </button>
+          </div>
           <div class="routine-instruction-details">
             <div class="detail-section detail-setup">
               <div class="detail-head">

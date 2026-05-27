@@ -2200,3 +2200,126 @@ main {
     gap: 16px;
   }
 }
+
+/* ============================================================
+   RESPONSIVE MOBILE AND PHONE OPTIMIZATIONS
+   ============================================================ */
+
+/* Instruction Tabs for mobile layout */
+.instruction-tabs-bar {
+  display: none; /* Hidden by default (on desktop) */
+}
+
+@media (max-width: 767px) {
+  .instruction-tabs-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+    width: 100%;
+  }
+
+  .instruction-tabs-bar .tab-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .instruction-tabs-bar .tab-btn:hover {
+    background: var(--bg-active-row);
+    color: var(--text-primary);
+  }
+
+  /* Specific premium focus/active styling for each type of tab on mobile */
+  .instruction-tabs-bar .tab-btn.active {
+    border-color: transparent;
+  }
+  
+  .instruction-tabs-bar .tab-btn[data-tab="setup"].active {
+    color: var(--color-accent);
+    background: rgba(14, 165, 233, 0.09);
+    border: 1px solid rgba(14, 165, 233, 0.2);
+  }
+  
+  .instruction-tabs-bar .tab-btn[data-tab="movement"].active {
+    color: var(--color-brand);
+    background: rgba(13, 148, 136, 0.09);
+    border: 1px solid rgba(13, 148, 136, 0.2);
+  }
+  
+  .instruction-tabs-bar .tab-btn[data-tab="tip"].active {
+    color: var(--color-warning);
+    background: rgba(245, 158, 11, 0.09);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+
+  .instruction-tabs-bar .tab-btn .tab-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #ffffff;
+  }
+
+  .instruction-tabs-bar .tab-btn[data-tab="setup"] .tab-num {
+    background: var(--color-accent);
+  }
+
+  .instruction-tabs-bar .tab-btn[data-tab="movement"] .tab-num {
+    background: var(--color-brand);
+  }
+
+  /* Show only the active tab's description card and hide others */
+  .routine-instruction-card[data-active-tab="setup"] .detail-section:not(.detail-setup) {
+    display: none !important;
+  }
+  .routine-instruction-card[data-active-tab="movement"] .detail-section:not(.detail-movement) {
+    display: none !important;
+  }
+  .routine-instruction-card[data-active-tab="tip"] .detail-section:not(.detail-tip) {
+    display: none !important;
+  }
+
+  /* Tweak mobile instructions to look unified without swiping layout */
+  .routine-instruction-details {
+    overflow-x: hidden;
+    scroll-snap-type: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+  }
+
+  .routine-instruction-details .detail-section {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    margin: 0;
+    box-shadow: none;
+  }
+}
+
+/* Hide low-priority transport controls on narrow phone screens to avoid off-screen overflow */
+@media (max-width: 767px) {
+  .controls-overlay .tempo-adjust-group,
+  .controls-overlay .gc-divider,
+  .controls-overlay #btn-guided-mic,
+  .controls-overlay #btn-guided-voice {
+    display: none !important;
+  }
+}
