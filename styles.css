@@ -132,7 +132,8 @@ html, body {
 
 @media (min-width: 768px) {
   .app-container {
-    max-width: 1024px; /* iPad Landscape / Tablet wide screen layout */
+    max-width: 1440px; /* Expanded for massive screen assets on desktop */
+    width: 95%;        /* Fluid scaling */
     border-radius: 20px;
     height: 94vh;
     margin: 3vh auto;
@@ -168,7 +169,7 @@ header {
   flex-direction: column;
   gap: 10px;
   align-items: stretch;
-  max-width: 840px;
+  max-width: 100%;
   margin: 0 auto;
 }
 
@@ -2052,4 +2053,150 @@ main {
 
 .dark-theme .switch-slider:before {
   background-color: #f8fafc;
+}
+
+/* Responsive side-by-side active stepper layout on wider screens */
+@media (min-width: 768px) {
+  #screen-routine.screen.active {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 24px;
+    align-items: flex-start;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  #screen-routine .routine-grid {
+    flex: 1.2;
+    min-width: 360px;
+    margin: 0;
+  }
+
+  #screen-routine .routine-instruction-card {
+    flex: 1;
+    min-width: 300px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  #screen-routine .routine-instruction-details {
+    flex-direction: column;
+    overflow-x: visible;
+    scroll-snap-type: none;
+    align-items: stretch;
+    gap: 12px;
+    padding: 0;
+  }
+
+  #screen-routine .routine-instruction-details .detail-section {
+    flex: none;
+    width: 100%;
+  }
+
+  /* Upscale clinician instruction details for high visibility on desktop */
+  #screen-routine .routine-instruction-details .detail-content {
+    font-size: 1.15rem;
+    line-height: 1.6;
+  }
+
+  #screen-routine .routine-instruction-details .detail-label {
+    font-size: 1.05rem;
+  }
+
+  #screen-routine .routine-instruction-details .detail-step-num {
+    font-size: 1.1rem;
+    width: 28px;
+    height: 28px;
+  }
+
+  #screen-routine .routine-instruction-details .detail-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Upscale floating complications inside the 4:3 canvas on desktop */
+  
+  /* 1. Status Banner Overlay */
+  .status-overlay .guided-status-label {
+    font-size: 1.8rem;
+  }
+
+  .status-overlay .guided-status-sub {
+    font-size: 0.85rem;
+  }
+
+  /* 2. Floating Timer Complication */
+  .timer-overlay {
+    width: 120px;
+    height: 120px;
+    right: 24px;
+  }
+
+  .timer-overlay .timer-digits {
+    font-size: 2.2rem;
+  }
+
+  .timer-overlay .timer-subtext {
+    font-size: 0.7rem;
+  }
+
+  .timer-overlay .breathing-ring {
+    width: 104px;
+    height: 104px;
+  }
+
+  /* 3. Sets & Reps completion box (for isometrics) */
+  .reps-sets-overlay {
+    bottom: 20px;
+    left: 20px;
+    padding: 14px 20px !important;
+    gap: 10px 16px;
+  }
+
+  .reps-sets-overlay .rep-box-title {
+    font-size: 0.7rem;
+  }
+
+  .reps-sets-overlay .rep-box-val {
+    font-size: 1.6rem;
+  }
+
+  .reps-sets-overlay .rep-completion-btn {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  /* 4. Circular Progress Indicator Overlay */
+  .progress-circles-overlay {
+    top: 24px;
+    left: 24px;
+    padding: 10px 14px;
+    gap: 8px;
+  }
+
+  .progress-row-label {
+    font-size: 0.75rem;
+    min-width: 46px;
+  }
+
+  .progress-circle-dot {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* Widescreen Dashboard Grid Layout: prevent stretched list rows */
+  .exercise-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 12px;
+  }
+
+  /* Widescreen Statistics Grid Layout: side-by-side charts */
+  .stats-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 16px;
+  }
 }
