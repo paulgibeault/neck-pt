@@ -51,6 +51,10 @@ export class View {
       summaryDetailTipBox: $('summary-detail-tip-box'),
       summaryDetailTip: $('summary-detail-tip'),
       btnSummaryPlay: $('btn-summary-play'),
+      btnSummaryToggleOriginal: $('btn-summary-toggle-original-photo'),
+      btnSummaryPrevFrame: $('btn-summary-prev-frame'),
+      btnSummaryNextFrame: $('btn-summary-next-frame'),
+      summaryFrameDotsContainer: $('summary-frame-dots-container'),
 
       // routine
       btnExitRoutine: $('btn-exit-routine'),
@@ -59,6 +63,9 @@ export class View {
       btnToggleOriginal: $('btn-toggle-original-photo'),
       activeIllustration: $('routine-active-illustration'),
       frameDotsContainer: $('routine-frame-dots-container'),
+      btnPrevFrame: $('btn-routine-prev-frame'),
+      btnNextFrame: $('btn-routine-next-frame'),
+      progressCircles: $('routine-progress-circles'),
       activeCategory: $('routine-active-category'),
       guidedSide: $('routine-guided-side'),
       activeTitle: $('routine-active-title'),
@@ -208,6 +215,10 @@ export class View {
     this.dom.prePainValue.textContent = value;
   }
 
+  isSummaryActive() {
+    return this.screens.summary.classList.contains('active');
+  }
+
   /* ---- summary ---- */
 
   renderSummary(ex, idx, total, clinicianNote) {
@@ -221,6 +232,7 @@ export class View {
     this._setTip(this.dom.summaryDetailTipBox, this.dom.summaryDetailTip, ex.tip);
     this._renderPills(this.dom.summaryDosagePills, dosagePills(ex.dosage));
     this._setNote(this.dom.summaryClinicianNote, clinicianNote);
+    this.setOriginalToggle(false, 'summary');
   }
 
   /* ---- routine ---- */
@@ -245,6 +257,9 @@ export class View {
     this.dom.repsSetsBox.style.display = 'none';
     this.dom.timerContainer.style.display = 'flex';
     this.dom.exitConfirm.style.display = 'none';
+    if (this.dom.activeIllustration) {
+      this.dom.activeIllustration.classList.remove('mirrored');
+    }
     this.setBreathing('idle');
   }
 
@@ -344,11 +359,17 @@ export class View {
   updateSide(side) {
     if (!side) {
       this.dom.guidedSide.style.display = 'none';
+      if (this.dom.activeIllustration) {
+        this.dom.activeIllustration.classList.remove('mirrored');
+      }
       return;
     }
     this.dom.guidedSide.style.display = 'inline-block';
     this.dom.guidedSide.textContent = side === 'left' ? 'Left Side' : 'Right Side';
     this.dom.guidedSide.className = side === 'left' ? 'ex-badge badge-stretch' : 'ex-badge badge-nerve-glide';
+    if (this.dom.activeIllustration) {
+      this.dom.activeIllustration.classList.toggle('mirrored', side === 'right');
+    }
   }
 
   setRepButton(text, disabled) {
@@ -358,10 +379,10 @@ export class View {
 
   /* ---- frames / illustration ---- */
 
-  renderFrame(src, activeIndex) {
-    const img = this.dom.activeIllustration;
+  renderFrame(src, activeIndex, mode = 'routine') {
+    const img = mode === 'summary' ? this.dom.summaryPreview : this.dom.activeIllustration;
+    const dotsContainer = mode === 'summary' ? this.dom.summaryFrameDotsContainer : this.dom.frameDotsContainer;
     // Crossfade: fade out, swap, fade back in once the new frame is paint-ready.
-    // (CSS gives #routine-active-illustration an opacity transition.)
     if (img && img.getAttribute('src') !== src) {
       img.style.opacity = '0';
       img.src = src;
@@ -369,25 +390,42 @@ export class View {
       if (img.decode) img.decode().then(reveal).catch(reveal);
       else img.onload = reveal;
     }
-    this.dom.frameDotsContainer.querySelectorAll('.frame-dot').forEach((dot, i) => {
-      dot.classList.toggle('active', i === activeIndex - 1);
-    });
+    if (dotsContainer) {
+      dotsContainer.querySelectorAll('.frame-dot').forEach((dot, i) => {
+        dot.classList.toggle('active', i === activeIndex - 1);
+      });
+    }
   }
 
-  buildDots(count, onDotClick) {
-    this.dom.frameDotsContainer.innerHTML = '';
-    if (count <= 1) return;
+  setFrameNavVisibility(visible, mode = 'routine') {
+    const btnPrev = mode === 'summary' ? this.dom.btnSummaryPrevFrame : this.dom.btnPrevFrame;
+    const btnNext = mode === 'summary' ? this.dom.btnSummaryNextFrame : this.dom.btnNextFrame;
+    if (btnPrev && btnNext) {
+      const displayStyle = visible ? 'flex' : 'none';
+      btnPrev.style.display = displayStyle;
+      btnNext.style.display = displayStyle;
+    }
+  }
+
+  buildDots(count, onDotClick, mode = 'routine') {
+    const dotsContainer = mode === 'summary' ? this.dom.summaryFrameDotsContainer : this.dom.frameDotsContainer;
+    if (!dotsContainer) return;
+    dotsContainer.innerHTML = '';
+    const hasMultiple = count > 1;
+    this.setFrameNavVisibility(hasMultiple, mode);
+    if (!hasMultiple) return;
     for (let i = 1; i <= count; i++) {
       const dot = document.createElement('div');
       dot.className = `frame-dot ${i === 1 ? 'active' : ''}`;
       dot.addEventListener('click', () => onDotClick(i));
-      this.dom.frameDotsContainer.appendChild(dot);
+      dotsContainer.appendChild(dot);
     }
   }
 
-  setOriginalToggle(showingOriginal) {
-    if (this.dom.btnToggleOriginal) {
-      this.dom.btnToggleOriginal.innerHTML = showingOriginal
+  setOriginalToggle(showingOriginal, mode = 'routine') {
+    const btnToggle = mode === 'summary' ? this.dom.btnSummaryToggleOriginal : this.dom.btnToggleOriginal;
+    if (btnToggle) {
+      btnToggle.innerHTML = showingOriginal
         ? `${SVG_PEN} View Drawing`
         : `${SVG_PHOTO} View Photo`;
     }
@@ -495,6 +533,85 @@ export class View {
       label.textContent = Number.isInteger(pain) ? pain : pain.toFixed(1);
       g.appendChild(label);
     });
+  }
+
+  setIllustrationDimmed(dimmed) {
+    if (this.dom.activeIllustration) {
+      this.dom.activeIllustration.classList.toggle('dimmed', !!dimmed);
+    }
+  }
+
+  renderProgressCircles(progress) {
+    const container = this.dom.progressCircles;
+    if (!container) return;
+
+    if (!progress) {
+      container.style.display = 'none';
+      return;
+    }
+
+    container.style.display = 'flex';
+    container.innerHTML = '';
+
+    if (progress.type === 'sides') {
+      const row = document.createElement('div');
+      row.className = 'progress-circles-row';
+      row.innerHTML = `<span class="progress-row-label">Sides</span>`;
+      
+      const list = document.createElement('div');
+      list.className = 'circles-list';
+      
+      for (let i = 0; i < 2; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'progress-circle-dot';
+        if (i < progress.completedCount) {
+          dot.classList.add('completed');
+        } else if (i === progress.completedCount && progress.active) {
+          dot.classList.add('active');
+        }
+        list.appendChild(dot);
+      }
+      row.appendChild(list);
+      container.appendChild(row);
+    } else if (progress.type === 'reps-sets') {
+      // Sets row
+      const setsRow = document.createElement('div');
+      setsRow.className = 'progress-circles-row';
+      setsRow.innerHTML = `<span class="progress-row-label">Sets</span>`;
+      const setsList = document.createElement('div');
+      setsList.className = 'circles-list';
+      for (let s = 1; s <= progress.setsTotal; s++) {
+        const dot = document.createElement('div');
+        dot.className = 'progress-circle-dot';
+        if (s < progress.set) {
+          dot.classList.add('completed');
+        } else if (s === progress.set) {
+          dot.classList.add('active');
+        }
+        setsList.appendChild(dot);
+      }
+      setsRow.appendChild(setsList);
+      container.appendChild(setsRow);
+
+      // Reps row
+      const repsRow = document.createElement('div');
+      repsRow.className = 'progress-circles-row';
+      repsRow.innerHTML = `<span class="progress-row-label">Reps</span>`;
+      const repsList = document.createElement('div');
+      repsList.className = 'circles-list';
+      for (let r = 1; r <= progress.repsTotal; r++) {
+        const dot = document.createElement('div');
+        dot.className = 'progress-circle-dot';
+        if (r < progress.rep) {
+          dot.classList.add('completed');
+        } else if (r === progress.rep && progress.isRepActive) {
+          dot.classList.add('active');
+        }
+        repsList.appendChild(dot);
+      }
+      repsRow.appendChild(repsList);
+      container.appendChild(repsRow);
+    }
   }
 
   /* ---- shared helpers ---- */

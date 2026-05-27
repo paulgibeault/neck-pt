@@ -7,7 +7,7 @@
  * PWA from the very first session — no internet required during workouts.
  */
 
-const CACHE_NAME = "neck-pt-v5";
+const CACHE_NAME = "neck-pt-v7";
 
 // Core app shell — always pre-cached on install.
 const SHELL_ASSETS = [

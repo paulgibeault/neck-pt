@@ -180,7 +180,7 @@
                 </button>
               </div>
 
-              <img id="summary-preview-illustration" src="" alt="Exercise Demonstration Preview">
+              <img id="summary-preview-illustration" class="active-illustration centered-reference" src="" alt="Exercise Demonstration Preview">
               
               <!-- Floating Start Exercise Play Button Overlay (Top Right) -->
               <button id="btn-summary-play" class="btn-summary-play-overlay" title="Start Hands-Free Routine">
@@ -189,6 +189,33 @@
                 </svg>
                 <span>Start Routine</span>
               </button>
+
+              <!-- Floating View Original Photo Toggle Badge (Top Right, shifted left to avoid Start Routine button) -->
+              <button id="btn-summary-toggle-original-photo" class="original-toggle-btn floating-toggle-overlay summary-toggle-original-photo">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <span>View Photo</span>
+              </button>
+
+              <!-- Subtle Left/Right Manual Carousel Navigation Buttons -->
+              <button id="btn-summary-prev-frame" class="frame-nav-btn prev-btn" aria-label="Previous image" style="display: none;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+              <button id="btn-summary-next-frame" class="frame-nav-btn next-btn" aria-label="Next image" style="display: none;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+
+              <!-- Overlaid Carousel Dot Scrubbers (Bottom Left) -->
+              <div id="summary-frame-dots-container" class="frame-indicator-bar frame-dots-overlay">
+                <!-- Dots injected dynamically -->
+              </div>
             </div>
           </div>
 
@@ -254,7 +281,22 @@
               <!-- Centered Reference Illustration (tappable to toggle vector <-> original photo) -->
               <img id="routine-active-illustration" class="active-illustration centered-reference" src="" alt="Exercise Reference">
 
+              <!-- Subtle Left/Right Manual Carousel Navigation Buttons -->
+              <button id="btn-routine-prev-frame" class="frame-nav-btn prev-btn" aria-label="Previous image" style="display: none;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+              <button id="btn-routine-next-frame" class="frame-nav-btn next-btn" aria-label="Next image" style="display: none;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
 
+              <!-- Overlaid Reps/Sets/Sides Progress Circles (Top Left) -->
+              <div id="routine-progress-circles" class="progress-circles-overlay" style="display: none;">
+                <!-- Dynamically populated via JS -->
+              </div>
 
               <!-- Floating View Original Photo Toggle Badge (Top Right) -->
               <button id="btn-toggle-original-photo" class="original-toggle-btn floating-toggle-overlay">
@@ -508,9 +550,21 @@
   <script type="module" src="src/app.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
+      // Flag to prevent infinite reload loops during activation
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
+      });
+
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-          .then((reg) => console.log('ServiceWorker registered with scope:', reg.scope))
+          .then((reg) => {
+            console.log('ServiceWorker registered with scope:', reg.scope);
+            // Check for updates on every page load
+            reg.update();
+          })
           .catch((err) => console.error('ServiceWorker registration failed:', err));
       });
     }

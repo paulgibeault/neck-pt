@@ -97,6 +97,25 @@ class NeckPTApp {
     // Both the button and tapping the illustration flip vector <-> example photo.
     d.btnToggleOriginal?.addEventListener('click', () => this.toggleOriginal());
     d.activeIllustration?.addEventListener('click', () => this.toggleOriginal());
+    d.btnSummaryToggleOriginal?.addEventListener('click', () => this.toggleOriginal());
+    d.summaryPreview?.addEventListener('click', () => this.toggleOriginal());
+
+    d.btnPrevFrame?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.onPrevFrame();
+    });
+    d.btnNextFrame?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.onNextFrame();
+    });
+    d.btnSummaryPrevFrame?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.onPrevFrame();
+    });
+    d.btnSummaryNextFrame?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.onNextFrame();
+    });
 
     d.painSlider.addEventListener('input', (e) => { d.painValueDisplay.textContent = e.target.value; });
     d.btnSaveSession.addEventListener('click', () => this.saveRoutineSession());
@@ -162,6 +181,12 @@ class NeckPTApp {
     if (!ex) return;
     this.view.renderSummary(ex, idx, this.exercises.length, this.clinicianNote(ex));
     this.view.showScreen('summary');
+
+    this.activeFrameIndex = 1;
+    this.showingOriginal = false;
+    this.view.buildDots(ex.example_image_count, (i) => this.onDotClick(i), 'summary');
+    this.renderFrame();
+    this.startFrameAnimator(ex.example_image_count);
   }
 
   clinicianNote(ex) {
@@ -182,14 +207,14 @@ class NeckPTApp {
     const ex = this.exercises[this.currentExIndex];
     if (!ex) return;
     const kind = this.showingOriginal ? 'example' : 'vector';
-    this.view.renderFrame(`${ex.folder}/${kind}-${this.activeFrameIndex}.png`, this.activeFrameIndex);
+    const mode = this.view.isSummaryActive() ? 'summary' : 'routine';
+    this.view.renderFrame(`${ex.folder}/${kind}-${this.activeFrameIndex}.png`, this.activeFrameIndex, mode);
   }
 
   startFrameAnimator(count) {
     this.stopFrameAnimator();
     if (count <= 1) return;
     this.animatorInterval = setInterval(() => {
-      if (this.showingOriginal) return;
       this.activeFrameIndex = this.activeFrameIndex >= count ? 1 : this.activeFrameIndex + 1;
       this.renderFrame();
     }, FRAME_INTERVAL_MS);
@@ -206,9 +231,26 @@ class NeckPTApp {
     this.startFrameAnimator(this.exercises[this.currentExIndex].example_image_count);
   }
 
+  onPrevFrame() {
+    const ex = this.exercises[this.currentExIndex];
+    if (!ex || ex.example_image_count <= 1) return;
+    this.activeFrameIndex = this.activeFrameIndex <= 1 ? ex.example_image_count : this.activeFrameIndex - 1;
+    this.renderFrame();
+    this.startFrameAnimator(ex.example_image_count);
+  }
+
+  onNextFrame() {
+    const ex = this.exercises[this.currentExIndex];
+    if (!ex || ex.example_image_count <= 1) return;
+    this.activeFrameIndex = this.activeFrameIndex >= ex.example_image_count ? 1 : this.activeFrameIndex + 1;
+    this.renderFrame();
+    this.startFrameAnimator(ex.example_image_count);
+  }
+
   toggleOriginal() {
     this.showingOriginal = !this.showingOriginal;
-    this.view.setOriginalToggle(this.showingOriginal);
+    const mode = this.view.isSummaryActive() ? 'summary' : 'routine';
+    this.view.setOriginalToggle(this.showingOriginal, mode);
     this.renderFrame();
   }
 
@@ -316,7 +358,7 @@ class NeckPTApp {
     this.showingOriginal = false;
     this.renderFrame();
     this.view.buildDots(ex.example_image_count, (i) => this.onDotClick(i));
-    this.startFrameAnimator(ex.example_image_count);
+    this.stopFrameAnimator();
 
     this.view.setGuidedPaused(false);
     this.view.setTempoLabel(1 / state.tempoScale);
@@ -333,6 +375,35 @@ class NeckPTApp {
     if (activePhase.type === 'rep' && !activePhase.isometric) audio.playTick();
     if (activePhase.breathing) this._updateBreath(state);
     else this.view.setBreathing('idle');
+
+    // Dim the active illustration on rest/prepare/switch, full color on holds/reps
+    const isEffort = activePhase.type === 'hold' || activePhase.type === 'rep';
+    this.view.setIllustrationDimmed(!isEffort);
+
+    // Frame illustration control based on dynamic vs static hold
+    const ex = state.activeExercise;
+    if (ex) {
+      const isStatic = ex.category === 'stretch' || ex.category === 'isometric';
+      if (isStatic) {
+        // Stretches and isometrics: neutral position during prep/rest/switch, hold position during effort hold/rep
+        this.activeFrameIndex = isEffort ? ex.example_image_count : 1;
+        this.stopFrameAnimator();
+        this.renderFrame();
+      } else {
+        // Dynamic dynamic movements: loop dynamic frames during rep effort, neutral during prep/rest/switch
+        if (isEffort) {
+          this.startFrameAnimator(ex.example_image_count);
+        } else {
+          this.activeFrameIndex = 1;
+          this.stopFrameAnimator();
+          this.renderFrame();
+        }
+      }
+
+      // Render progress circles
+      const progress = this.computeProgressModel(ex, activePhase, state.phaseIdx, this.session?.plan);
+      this.view.renderProgressCircles(progress);
+    }
   }
 
   /** Called each 1-second tick of an active phase. */
@@ -387,6 +458,7 @@ class NeckPTApp {
     }
     this.stopFrameAnimator();
     this.view.setBreathing('idle');
+    this.view.renderProgressCircles(null);
     this.speaker.cancel();
     if (this.voice) this.voice.stop();
   }
@@ -495,6 +567,76 @@ class NeckPTApp {
 
     this.view.showCompletionSummary({ durationMinutes, painDelta: postPain - this.preSessionPain, streak });
     audio.playChime();
+  }
+
+  getSetRepProgress(plan, phaseIdx) {
+    if (!plan) return null;
+    for (let i = phaseIdx; i < plan.length; i++) {
+      if (plan[i].set !== undefined && plan[i].rep !== undefined) {
+        return {
+          set: plan[i].set,
+          setsTotal: plan[i].setsTotal,
+          rep: plan[i].rep,
+          repsTotal: plan[i].repsTotal
+        };
+      }
+    }
+    for (let i = phaseIdx; i >= 0; i--) {
+      if (plan[i].set !== undefined && plan[i].rep !== undefined) {
+        return {
+          set: plan[i].set,
+          setsTotal: plan[i].setsTotal,
+          rep: plan[i].rep,
+          repsTotal: plan[i].repsTotal
+        };
+      }
+    }
+    return null;
+  }
+
+  computeProgressModel(ex, phase, phaseIdx, plan) {
+    if (!ex || !phase) return null;
+
+    // 1. Hold-based exercise (no reps dosage, or only hold_seconds)
+    if (ex.dosage && ex.dosage.hold_seconds) {
+      let completedCount = 0;
+      let active = false;
+      
+      if (ex.unilateral) {
+        if (phase.side === 'left') {
+          completedCount = 0;
+          active = true;
+        } else if (phase.side === 'right') {
+          completedCount = 1;
+          active = true;
+        } else {
+          if (phase.type === 'complete') {
+            completedCount = 2;
+            active = false;
+          } else {
+            completedCount = 0;
+            active = false;
+          }
+        }
+        return { type: 'sides', completedCount, active };
+      }
+    }
+
+    // 2. Reps & Sets based exercise
+    const progress = this.getSetRepProgress(plan, phaseIdx);
+    if (progress) {
+      const isRepActive = phase.type === 'rep';
+      return {
+        type: 'reps-sets',
+        set: progress.set,
+        setsTotal: progress.setsTotal,
+        rep: progress.rep,
+        repsTotal: progress.repsTotal,
+        isRepActive
+      };
+    }
+
+    return null;
   }
 }
 

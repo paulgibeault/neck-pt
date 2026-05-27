@@ -633,13 +633,88 @@ main {
   height: 100%;
   object-fit: contain;
   padding: 40px 12px 6px 12px; /* Generous top padding for status overlays to clear the drawing's head! */
-  transition: opacity 0.5s ease;
+  transition: opacity 0.5s ease, filter 0.5s ease;
   display: block;
+}
+
+.canvas-visual-wrapper img.active-illustration.mirrored {
+  transform: scaleX(-1);
+}
+
+.canvas-visual-wrapper img.active-illustration.dimmed {
+  opacity: 0.25;
+  filter: grayscale(40%) blur(0.5px);
 }
 
 .canvas-visual-wrapper img.centered-reference {
   max-width: 100%;
   max-height: 100%;
+}
+
+/* Overlaid Reps/Sets/Sides Progress Circles (Top Left) */
+.progress-circles-overlay {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 8px 12px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none; /* Let clicks pass through */
+}
+
+.progress-circles-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress-row-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 38px;
+}
+
+.circles-list {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress-circle-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.progress-circle-dot.completed {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+}
+
+.progress-circle-dot.active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 8px var(--color-accent);
+  animation: circlePulse 1.5s infinite alternate;
+}
+
+@keyframes circlePulse {
+  from { transform: scale(1); opacity: 0.8; }
+  to { transform: scale(1.2); opacity: 1; }
 }
 
 /* Floating View Original Photo Toggle Badge (Top Right) */
@@ -1027,6 +1102,63 @@ main {
   width: 14px;
 }
 
+/* Subtle Manual Carousel Navigation Buttons (Middle Left/Right) */
+.frame-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 12;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.8);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0;
+}
+
+.frame-nav-btn:hover {
+  background: rgba(15, 23, 42, 0.7);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.frame-nav-btn:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.frame-nav-btn.prev-btn {
+  left: 12px;
+}
+
+.frame-nav-btn.next-btn {
+  right: 12px;
+}
+
+@media (max-width: 640px) {
+  .frame-nav-btn {
+    width: 32px;
+    height: 32px;
+  }
+  .frame-nav-btn.prev-btn {
+    left: 8px;
+  }
+  .frame-nav-btn.next-btn {
+    right: 8px;
+  }
+}
+
+
 /* Interactive sets/reps box overlay (for isometrics) */
 .reps-sets-overlay {
   position: absolute;
@@ -1113,6 +1245,11 @@ main {
 
 .original-toggle-btn:hover {
   background: rgba(15, 23, 42, 0.85);
+}
+
+.original-toggle-btn.summary-toggle-original-photo {
+  right: 180px;
+  top: 16px;
 }
 
 /* Right Column: Routine Tracking controls */
