@@ -81,11 +81,13 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
 
-  // Pass through: non-GET, cross-origin, and favicon (doesn't exist in this app).
+  // Pass through: non-GET, cross-origin, favicons, API requests, and admin panel.
   if (
     e.request.method !== "GET" ||
     url.origin !== self.location.origin ||
-    url.pathname === "/favicon.ico"
+    url.pathname === "/favicon.ico" ||
+    url.pathname.includes("/api/") ||
+    url.pathname.includes("admin.html")
   ) {
     return;
   }

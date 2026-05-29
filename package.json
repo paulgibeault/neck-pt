@@ -4,7 +4,7 @@
   "description": "Interactive Neck PT Companion App",
   "type": "module",
   "scripts": {
-    "start": "npx http-server -p 8080",
+    "start": "node server.mjs",
     "test": "node test.mjs"
   }
 }

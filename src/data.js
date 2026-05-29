@@ -2,9 +2,7 @@
  * Neck PT Companion - Canonical Program Prescription Data
  *
  * This is the SINGLE SOURCE OF TRUTH for the program. The app reads only this file.
- * (The former program.json + per-exercise exercise.json files were removed; their
- * content was folded in here.) Loaded as an ES module — the app must be served over
- * http (see `npm start`), not opened via file://.
+ * Automatically saved and managed via the Exercise Admin Panel.
  */
 
 export const PROGRAM = {
@@ -23,7 +21,10 @@ export const PROGRAM = {
     "login_url": "taiweb.medbridgego.com",
     "access_code": "CC8X3A8B"
   },
-  "printed_dates": ["2026-05-15", "2026-05-22"],
+  "printed_dates": [
+    "2026-05-15",
+    "2026-05-22"
+  ],
   "clinician_notes": [
     "Breath - James Nestor (book recommendation written across the header of page 1)",
     "3-4\" holds (handwritten beside the isometric exercises)"
@@ -48,7 +49,12 @@ export const PROGRAM = {
       "setup": "Begin sitting upright on a table grasping the edge with one hand.",
       "movement": "Rotate your head up and to the side opposite of your anchored arm and slowly lean it toward your shoulder, applying pressure with your hand until you feel a stretch and hold.",
       "tip": "Make sure to keep your back straight during the exercise.",
-      "notes": []
+      "notes": [],
+      "prompt": "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. Soft translucent gold/yellow highlights on target muscles. No text, Captions, grids or background scenery. Square 1:1 framing.\nDRAW:\nA person sitting upright on a table, tilting their head to the side opposite their anchored arm to stretch the upper trapezius muscle. Highlight target neck stretch area in pale gold.",
+      "prompts": [
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. Soft translucent gold/yellow highlights on target muscles. No text, Captions, grids or background scenery. Square 1:1 framing.\nDRAW:\nA person sitting upright on a table, tilting their head to the side opposite their anchored arm to stretch the upper trapezius muscle. Highlight target neck stretch area in pale gold.",
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. Soft translucent gold/yellow highlights on target muscles. No text, Captions, grids or background scenery. Square 1:1 framing.\nDRAW:\nThe same person in the final stretched position, tilting their head fully to the side opposite their anchored arm, applying gentle pressure with their hand to deepen the stretch on the upper trapezius. Highlight target stretch area in pale gold."
+      ]
     },
     {
       "order": 2,
@@ -69,7 +75,12 @@ export const PROGRAM = {
       "setup": "Begin sitting upright in a chair, grasping the edge with one hand.",
       "movement": "Rotate your head to the side opposite your anchored arm, then tuck your chin towards your chest. With your free hand, grasp the back of your head and gently pull it downward until you feel a stretch and hold.",
       "tip": "Make sure to keep your back straight during the exercise.",
-      "notes": []
+      "notes": [],
+      "prompt": "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nA man sitting upright on a simple chair, front 3/4 view — SAME character, clothing (t-shirt and shorts), chair and viewpoint as Reference image 1. This is the STARTING position only: back straight, head and neck neutral and upright with NO tilt or rotation, facing forward. One hand reaches down and grips the front edge of the chair seat to anchor the shoulder; the other arm hangs relaxed. No stretch is being applied yet. Lightly highlight the side neck muscles in pale gold.",
+      "prompts": [
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nA man sitting upright on a simple chair, front 3/4 view — SAME character, clothing (t-shirt and shorts), chair and viewpoint as Reference image 1. This is the STARTING position only: back straight, head and neck neutral and upright with NO tilt or rotation, facing forward. One hand reaches down and grips the front edge of the chair seat to anchor the shoulder; the other arm hangs relaxed. No stretch is being applied yet. Lightly highlight the side neck muscles in pale gold.",
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nA man sitting upright in a chair, rotating his head away from the anchored arm, then tucking his chin toward his chest. His free hand holds the back of his head, gently pulling it down to stretch the levator scapulae muscle. Highlight the target stretch area on the back/side of the neck in pale gold."
+      ]
     },
     {
       "order": 3,
@@ -81,8 +92,14 @@ export const PROGRAM = {
       "unilateral": true,
       "dosage": {
         "hold_seconds": null,
-        "reps": { "min": 5, "max": 5 },
-        "sets": { "min": 2, "max": 2 },
+        "reps": {
+          "min": 5,
+          "max": 5
+        },
+        "sets": {
+          "min": 2,
+          "max": 2
+        },
         "daily": 1,
         "weekly": 7
       },
@@ -92,6 +109,11 @@ export const PROGRAM = {
       "tip": "Do not let your head tilt or rotate during the exercise.",
       "notes": [
         "3-4\" holds"
+      ],
+      "prompt": "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nA woman standing upright, front view — SAME character, tank top and shorts, and style as Reference image 1. Her chin is gently tucked and her hand is pressed flat against the side of her head / temple. Show the ISOMETRIC resistance with TWO bold dark arrows at the top of the head pointing toward each other (one from the head pressing toward the hand, one from the hand pressing back into the head): the head and hand push against each other with NO movement. Include ONLY these two converging arrows. Highlight the side neck muscles in pale gold.",
+      "prompts": [
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nA woman standing upright, front view — SAME character, tank top and shorts, and style as Reference image 1. Her chin is gently tucked, posture is straight and she looks forward. One hand is relaxed by her side; the other hand is not yet touching her head. No manual resistance is applied yet.",
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nA woman standing upright, front view — SAME character, tank top and shorts, and style as Reference image 1. Her chin is gently tucked and her hand is pressed flat against the side of her head / temple. Show the ISOMETRIC resistance with TWO bold dark arrows at the top of the head pointing toward each other (one from the head pressing toward the hand, one from the hand pressing back into the head): the head and hand push against each other with NO movement. Include ONLY these two converging arrows. Highlight the side neck muscles in pale gold."
       ]
     },
     {
@@ -104,8 +126,14 @@ export const PROGRAM = {
       "unilateral": true,
       "dosage": {
         "hold_seconds": null,
-        "reps": { "min": 5, "max": 5 },
-        "sets": { "min": 2, "max": 2 },
+        "reps": {
+          "min": 5,
+          "max": 5
+        },
+        "sets": {
+          "min": 2,
+          "max": 2
+        },
         "daily": 1,
         "weekly": 7
       },
@@ -115,6 +143,10 @@ export const PROGRAM = {
       "tip": "There should be little to no movement. Make sure to keep your back straight during the exercise.",
       "notes": [
         "3-4\" holds"
+      ],
+      "prompt": "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. Soft translucent gold/yellow highlights on target muscles. Square 1:1 framing.\nDRAW:\nA person sitting in an upright position, placing their hand on the side of their face to resist head rotation. Include two converging arrows at the head and hand showing isometric pressure. Highlight side neck muscles in pale gold.",
+      "prompts": [
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. Soft translucent gold/yellow highlights on target muscles. Square 1:1 framing.\nDRAW:\nA person sitting in an upright position, placing their hand on the side of their face to resist head rotation. Include two converging arrows at the head and hand showing isometric pressure. Highlight side neck muscles in pale gold."
       ]
     },
     {
@@ -127,8 +159,14 @@ export const PROGRAM = {
       "unilateral": true,
       "dosage": {
         "hold_seconds": null,
-        "reps": { "min": 10, "max": 10 },
-        "sets": { "min": 3, "max": 3 },
+        "reps": {
+          "min": 10,
+          "max": 10
+        },
+        "sets": {
+          "min": 3,
+          "max": 3
+        },
         "daily": 1,
         "weekly": 7
       },
@@ -136,7 +174,13 @@ export const PROGRAM = {
       "setup": "Begin sitting upright with one hand placed flat on your collarbone.",
       "movement": "Slowly tilt your head to the side away from your hand, then turn your head to look up towards the ceiling until you feel a gentle stretch in the side of your neck. Hold this position, then relax and repeat.",
       "tip": "Make sure to keep your neck and shoulders relaxed during the stretch.",
-      "notes": []
+      "notes": [],
+      "prompt": "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. Soft translucent gold/yellow highlights on target muscles. Square 1:1 framing.\nDRAW:\nA person sitting upright, tilting their head to the side and slightly rotating it upward to stretch the sternocleidomastoid muscle. One hand is placed flat on the collarbone. Highlight the side neck stretch area in pale gold.",
+      "prompts": [
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. Soft translucent gold/yellow highlights on target muscles. Square 1:1 framing.\nDRAW:\nA person sitting upright, hands relaxed. One hand is beginning to move toward their collarbone. Posture is straight and eyes look forward. STARTING position.",
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. Soft translucent gold/yellow highlights on target muscles. Square 1:1 framing.\nDRAW:\nA person sitting upright, one hand flat on the collarbone, tilting their head to the side opposite their hand to begin the stretch of the sternocleidomastoid muscle.",
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. Soft translucent gold/yellow highlights on target muscles. Square 1:1 framing.\nDRAW:\nThe same person in the final position, looking up towards the ceiling while keeping their hand anchored on the collarbone to maximize the stretch on the sternocleidomastoid muscle. Highlight the side neck stretch area in pale gold."
+      ]
     },
     {
       "order": 6,
@@ -148,8 +192,14 @@ export const PROGRAM = {
       "unilateral": false,
       "dosage": {
         "hold_seconds": null,
-        "reps": { "min": 8, "max": 8 },
-        "sets": { "min": 2, "max": 2 },
+        "reps": {
+          "min": 8,
+          "max": 8
+        },
+        "sets": {
+          "min": 2,
+          "max": 2
+        },
         "daily": 1,
         "weekly": 7
       },
@@ -157,7 +207,12 @@ export const PROGRAM = {
       "setup": "Begin sitting upright.",
       "movement": "Interlace fingers at base of neck, tuck chin in, fingers locked together behind head, elbows forward. Slowly look up with your eyes and elbows, only moving the elbows 1-2 inches up/down.",
       "tip": "Keep your breathing relaxed and focus on a small, focused motion.",
-      "notes": []
+      "notes": [],
+      "prompt": "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nA woman with a pony tail sitting upright on a chair, side view. The fingers are interlaced and clasped behind the BASE OF THE NECK, both elbows raised above and in front of the face. The chin is gently tucked. The person looks slightly upward — a small, controlled movement where just the eyes and elbows rise about 1-2 inches. The neck is NOT thrown far back; the head stays close to upright. Add ONE small thin double-headed vertical arrow beside the elbows to indicate the tiny 1-2 inch up/down range of motion. Highlight the upper spine / cervicothoracic region in pale gold.\n\nEnsure the clothing hair and pose match exactly, The person's elbows should be raised 45 degrees",
+      "prompts": [
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nA woman with a pony tail sitting upright on a chair, side view. The fingers are interlaced and clasped behind the BASE OF THE NECK, both elbows raised above and in front of the face. The chin is gently tucked. The person looks slightly upward — a small, controlled movement where just the eyes and elbows rise about 1-2 inches. The neck is NOT thrown far back; the head stays close to upright. Add ONE small thin double-headed vertical arrow beside the elbows to indicate the tiny 1-2 inch up/down range of motion. Highlight the upper spine / cervicothoracic region in pale gold.\n\nEnsure the clothing hair and pose match exactly, The person's elbows should be raised 45 degrees"
+      ],
+      "equipment": []
     },
     {
       "order": 7,
@@ -169,8 +224,14 @@ export const PROGRAM = {
       "unilateral": false,
       "dosage": {
         "hold_seconds": null,
-        "reps": { "min": 6, "max": 8 },
-        "sets": { "min": 3, "max": 3 },
+        "reps": {
+          "min": 6,
+          "max": 8
+        },
+        "sets": {
+          "min": 3,
+          "max": 3
+        },
         "daily": 1,
         "weekly": 7
       },
@@ -178,7 +239,12 @@ export const PROGRAM = {
       "setup": "Begin sitting in an upright position with your feet flat on the floor.",
       "movement": "Gently draw your chin in, while keeping your eyes fixed on something in front of you.",
       "tip": "Make sure that you do not look down as you do this exercise, or bend your neck forward.",
-      "notes": []
+      "notes": [],
+      "prompt": "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nA man shown in clean LEFT-FACING SIDE PROFILE, seated upright, wearing glasses; framed from the top of the head to the upper chest at a medium zoom. STARTING posture for cervical retraction: the head sits in a slightly forward / neutral position, eyes looking straight ahead at the horizon, neck relaxed.",
+      "prompts": [
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nA man shown in clean LEFT-FACING SIDE PROFILE, seated upright, wearing glasses; framed from the top of the head to the upper chest at a medium zoom. STARTING posture for cervical retraction: the head sits in a slightly forward / neutral position, eyes looking straight ahead at the horizon, neck relaxed.",
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nThe SAME man, SAME left-facing side profile, SAME zoom and framing as Reference image 1 (identical character, glasses, hair, clothing). END posture of cervical retraction: he has gently drawn his chin STRAIGHT BACK (posterior translation) producing a slight double-chin — the back of the head moves backward while the eyes stay level looking straight ahead. He does NOT look down and does NOT tip the head forward. Add one small thin arrow at the chin pointing straight back to show the gentle 'draw the chin in' motion. Highlight the upper neck in pale gold."
+      ]
     },
     {
       "order": 8,
@@ -190,17 +256,30 @@ export const PROGRAM = {
       "unilateral": false,
       "dosage": {
         "hold_seconds": null,
-        "reps": { "min": 6, "max": 8 },
-        "sets": { "min": 3, "max": 3 },
+        "reps": {
+          "min": 6,
+          "max": 8
+        },
+        "sets": {
+          "min": 3,
+          "max": 3
+        },
         "daily": 1,
         "weekly": null
       },
-      "equipment": ["foam roller"],
+      "equipment": [
+        "foam roller"
+      ],
       "example_image_count": 2,
       "setup": "Begin lying with your knees bent and a foam roll positioned vertically along the middle of your back, hands resting on your stomach.",
       "movement": "Slowly move your arms straight out to your sides, then return to the starting position and repeat.",
       "tip": "Make sure your back is laying flat against the foam roll.",
-      "notes": []
+      "notes": [],
+      "prompt": "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. Soft translucent gold/yellow highlights on target muscles. Square 1:1 framing.\nDRAW:\nA person lying on their back vertically along a foam roller, knees bent, arms straight out to their sides in a chest stretch. Highlight the chest/shoulder stretch areas in pale gold.",
+      "prompts": [
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. Soft translucent gold/yellow highlights on target muscles. Square 1:1 framing.\nDRAW:\nA person lying on their back vertically along a foam roller, knees bent, hands resting flat on their stomach. Posture is relaxed. STARTING position.",
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. Soft translucent gold/yellow highlights on target muscles. Square 1:1 framing.\nDRAW:\nA person lying on their back vertically along a foam roller, knees bent, arms straight out to their sides in a chest stretch. Highlight the chest/shoulder stretch areas in pale gold."
+      ]
     },
     {
       "order": 9,
@@ -212,16 +291,28 @@ export const PROGRAM = {
       "unilateral": true,
       "dosage": {
         "hold_seconds": null,
-        "reps": { "min": 10, "max": 10 },
-        "sets": { "min": 2, "max": 3 },
+        "reps": {
+          "min": 10,
+          "max": 10
+        },
+        "sets": {
+          "min": 2,
+          "max": 3
+        },
         "daily": 1,
         "weekly": null
       },
-      "example_image_count": 4,
+      "example_image_count": 3,
       "setup": "Begin in a standing upright position.",
       "movement": "Curl one arm toward the top of your shoulder, bending at your elbow and wrist. Next, slowly straighten your elbow out to the side of your body. When your elbow is straight, extend your wrist so your fingers are pointed toward the floor. Slowly return to the starting position and repeat.",
       "tip": "Make sure to do the movements smoothly and continuously. Try to keep your back straight during the exercise.",
-      "notes": []
+      "notes": [],
+      "prompt": "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nA man standing upright, front view, full upper body — SAME character, clothing and style as Reference image 1. STEP 1 of a median-nerve glide on the RIGHT arm: the right arm is curled UP so the hand comes to the TOP OF THE SHOULDER, the elbow is bent and points down/forward, and the WRIST IS FLEXED so the open fingers curl in toward the shoulder. The left arm hangs relaxed. Draw an OPEN hand with five clear fingers — NOT a clenched fist and NOT a fist up by the ear. Highlight the median-nerve path down the right arm in soft gold. ONE single figure only.",
+      "prompts": [
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nA man standing upright, front view, full upper body — SAME character, clothing and style as Reference image 1. STEP 1 of a median-nerve glide on the RIGHT arm: the right arm is curled UP so the hand comes to the TOP OF THE SHOULDER, the elbow is bent and points down/forward, and the WRIST IS FLEXED so the open fingers curl in toward the shoulder. The left arm hangs relaxed. Draw an OPEN hand with five clear fingers — NOT a clenched fist and NOT a fist up by the ear. Highlight the median-nerve path down the right arm in soft gold. ONE single figure only.",
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nThe SAME man and style as Reference image 1, front view. STEP 2 of the glide: the RIGHT elbow is lifting and beginning to straighten, the forearm swinging outward to the side, roughly halfway between the shoulder and a fully extended arm. The hand is open and relaxed. Highlight the median-nerve path in gold. ONE single figure only.",
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nThe SAME man and style as Reference image 1, front view. STEP 3 of the glide: the RIGHT arm is now fully STRAIGHT and raised horizontally OUT TO THE SIDE at shoulder height (elbow locked straight), palm facing forward, fingers relaxed and straight. Highlight the median-nerve path in gold. ONE single figure only."
+      ]
     },
     {
       "order": 10,
@@ -233,17 +324,30 @@ export const PROGRAM = {
       "unilateral": true,
       "dosage": {
         "hold_seconds": null,
-        "reps": { "min": 10, "max": 10 },
-        "sets": { "min": 2, "max": 3 },
+        "reps": {
+          "min": 10,
+          "max": 10
+        },
+        "sets": {
+          "min": 2,
+          "max": 3
+        },
         "daily": 1,
         "weekly": null
       },
-      "equipment": ["table or bed"],
+      "equipment": [
+        "table or bed"
+      ],
       "example_image_count": 2,
       "setup": "Begin lying on your front with your arm hanging off the edge of a table or bed.",
       "movement": "Keeping your elbow straight and thumb pointing up, raise your arm forward and up toward the ceiling. Slowly lower your arm down, then repeat the movement.",
       "tip": "Make sure not to arch your back as you lift your arm. Keep your thumb up throughout the exercise.",
-      "notes": []
+      "notes": [],
+      "prompt": "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nA person lying face-down (prone) on a flat therapy table, side view, head to the RIGHT. The near (working) arm hangs straight DOWN off the long front edge of the table toward the floor, thumb pointing forward. Torso and legs lie flat. STARTING position. Highlight the shoulder / upper-back in pale gold.",
+      "prompts": [
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nA person lying face-down (prone) on a flat therapy table, side view, head to the RIGHT. The near (working) arm hangs straight DOWN off the long front edge of the table toward the floor, thumb pointing forward. Torso and legs lie flat. STARTING position. Highlight the shoulder / upper-back in pale gold.",
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nThe SAME prone person, SAME table, view and head-right orientation as Reference image 1. Now the SAME working arm is raised FORWARD AND UP into a 'Y': the straight arm lifts up toward the ceiling AND angles forward toward the head end, so it forms roughly a 45-degree diagonal with the torso (like the upper arm of a letter Y), elbow straight, THUMB POINTING UP toward the ceiling. The arm is NOT straight vertical and NOT straight out to the side. Add a small arrow showing the arm lifting forward and up. Highlight the shoulder / upper-back muscles in gold."
+      ]
     },
     {
       "order": 11,
@@ -255,17 +359,30 @@ export const PROGRAM = {
       "unilateral": true,
       "dosage": {
         "hold_seconds": null,
-        "reps": { "min": 10, "max": 10 },
-        "sets": { "min": 2, "max": 3 },
+        "reps": {
+          "min": 10,
+          "max": 10
+        },
+        "sets": {
+          "min": 2,
+          "max": 3
+        },
         "daily": 1,
         "weekly": null
       },
-      "equipment": ["table or bed"],
+      "equipment": [
+        "table or bed"
+      ],
       "example_image_count": 2,
       "setup": "Begin lying on your front with one arm hanging off the edge of a bed.",
       "movement": "Raise your arm straight out to your side with your palm down. Slowly lower your arm back down, then repeat the movement.",
       "tip": "Make sure not to arch your back or shrug your shoulder as you lift your arm.",
-      "notes": []
+      "notes": [],
+      "prompt": "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nA person lying face-down (prone) on a flat therapy table, side view, head to the RIGHT — match the framing, table, viewpoint and style of Reference image 1 (the Shoulder-Y illustration) so the two exercises look like a consistent set. The near (working) arm hangs straight DOWN off the long front edge of the table toward the floor, palm facing back toward the feet. STARTING position. Highlight the shoulder / upper-back in pale gold.",
+      "prompts": [
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nA person lying face-down (prone) on a flat therapy table, side view, head to the RIGHT — match the framing, table, viewpoint and style of Reference image 1 (the Shoulder-Y illustration) so the two exercises look like a consistent set. The near (working) arm hangs straight DOWN off the long front edge of the table toward the floor, palm facing back toward the feet. STARTING position. Highlight the shoulder / upper-back in pale gold.",
+        "You are drawing ONE illustration frame for a physical-therapy app.\nSTYLE — match Reference image 1 precisely: a clean, minimalist flat line-art drawing of a single person, thin smooth sage/teal outlines, body filled pale mint-white, on a PURE WHITE background. The target muscles or nerve are shown as a soft translucent gold/yellow highlight. No text, letters, numbers, panel borders, captions, logos, shadows, grid, or background scenery. Square 1:1 framing, the figure centered with comfortable margins. Anatomically correct hands with five clearly drawn fingers.\nPOSE — Reference image 2 is a photo of the clinician's printout that shows the correct body position; copy the POSE and MOTION from it but ignore the paper, grain, printed text and watermarks. Draw exactly the position described below; do not add any arrows or symbols unless explicitly requested.\n\nDRAW:\nThe SAME prone person, SAME table, view and head-right orientation as Reference image 1. Now the SAME working arm is raised straight OUT TO THE SIDE (horizontal abduction): the straight arm lifts directly sideways to about shoulder height so it is roughly horizontal and PERPENDICULAR to the torso (like the crossbar of a letter T), elbow straight, PALM FACING DOWN toward the floor, shoulder blade squeezed back. It is NOT forward-and-up and NOT vertical. Add a small arrow showing the arm lifting out to the side. Highlight the upper-back / scapular muscles in gold."
+      ]
     }
   ]
 };

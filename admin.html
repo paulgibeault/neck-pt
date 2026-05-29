@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Neck PT - Exercise Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  
+  <style>
+    /* Admin specific adjustments to styles.css system */
+    html, body {
+      overflow: auto; /* Allow natural layout scrolling on admin */
+    }
+
+    .admin-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      min-height: 100vh;
+      box-sizing: border-box;
+      padding-bottom: 120px; /* Space for the floating sticky save bar */
+    }
+
+    /* Admin top header row */
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+
+    .admin-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .admin-logo .icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--color-brand), var(--color-accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .admin-title-wrap h1 {
+      font-size: 1.3rem;
+      background: linear-gradient(135deg, var(--text-primary) 30%, var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .admin-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      letter-spacing: 0.02em;
+    }
+
+    .connection-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(148, 163, 184, 0.1);
+      border: 1px solid var(--border-color);
+    }
+
+    .connection-pill.connected {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: var(--color-success);
+    }
+
+    .connection-pill.connected .dot {
+      background: var(--color-success);
+      box-shadow: 0 0 8px var(--color-success);
+    }
+
+    .connection-pill.static {
+      background: rgba(14, 165, 233, 0.12);
+      border-color: rgba(14, 165, 233, 0.3);
+      color: var(--color-accent);
+    }
+
+    .connection-pill.static .dot {
+      background: var(--color-accent);
+      box-shadow: 0 0 8px var(--color-accent);
+    }
+
+    .connection-pill .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+
+    /* Admin main grid split */
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .admin-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Sidebar list */
+    .sidebar-card {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: sticky;
+      top: 24px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(148, 163, 184, 0.08);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 10px 14px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      transition: var(--transition-fast);
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--color-accent);
+      background: var(--bg-card);
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+    }
+
+    .exercise-mini-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 50vh;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .exercise-mini-card {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      transition: var(--transition-fast);
+      text-align: left;
+    }
+
+    .exercise-mini-card:hover {
+      background: var(--bg-card-hover);
+      transform: translateX(4px);
+    }
+
+    .exercise-mini-card.active {
+      background: var(--bg-active-row);
+      border-color: var(--color-accent);
+    }
+
+    .exercise-mini-card.dragging {
+      opacity: 0.4;
+      border: 1.5px dashed var(--color-accent) !important;
+      background: var(--bg-active-row);
+    }
+
+    .exercise-mini-card.drag-over {
+      border-top: 3px solid var(--color-brand) !important;
+      background: var(--bg-card-hover);
+    }
+
+    .exercise-mini-card .info {
+      min-width: 0;
+      flex-grow: 1;
+    }
+
+    .exercise-mini-card .title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .exercise-mini-card .meta {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .exercise-mini-card .order-badge {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .exercise-mini-card.active .order-badge {
+      background: var(--color-accent);
+      color: white;
+      border-color: var(--color-accent);
+    }
+
+    .btn-create-new {
+      background: rgba(13, 148, 136, 0.08);
+      border: 1px dashed rgba(13, 148, 136, 0.4);
+      color: var(--color-brand);
+      border-radius: 12px;
+      padding: 12px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: var(--transition-fast);
+    }
+
+    .btn-create-new:hover {
+      background: rgba(13, 148, 136, 0.15);
+      border-style: solid;
+      transform: scale(1.01);
+    }
+
+    /* Main Workspace Editor */
+    .editor-card {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .editor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 16px;
+    }
+
+    .editor-header-title {
+      flex-grow: 1;
+      min-width: 0;
+    }
+
+    .editor-header-title h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .editor-header-title .slug-line {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: monospace;
+      margin-top: 4px;
+    }
+
+    .tab-nav {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .editor-tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: var(--transition-fast);
+    }
+
+    .editor-tab-btn:hover {
+      background: rgba(148, 163, 184, 0.08);
+      color: var(--text-primary);
+    }
+
+    .editor-tab-btn.active {
+      background: var(--bg-active-row);
+      border-color: var(--border-color-focus);
+      color: var(--color-accent);
+      font-weight: 600;
+    }
+
+    /* Form Fields */
+    .form-tab-panel {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+      animation: fadeIn 0.25s ease forwards;
+    }
+
+    .form-tab-panel.active {
+      display: flex;
+    }
+
+    .form-row-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .form-row-2col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: rgba(148, 163, 184, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      outline: none;
+      transition: var(--transition-fast);
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--color-accent);
+      background: var(--bg-card);
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.12);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 90px;
+      line-height: 1.4;
+    }
+
+    /* Unilateral Toggle Switch custom */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: rgba(148, 163, 184, 0.04);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+    }
+
+    /* Clinician Notes List */
+    .dynamic-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .dynamic-list-item {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn-icon-danger {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--color-danger);
+      transition: var(--transition-fast);
+      flex-shrink: 0;
+    }
+
+    .btn-icon-danger:hover {
+      background: var(--color-danger);
+      color: white;
+      border-color: var(--color-danger);
+    }
+
+    .btn-add-item {
+      background: transparent;
+      border: 1px dashed var(--border-color);
+      color: var(--text-secondary);
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      align-self: flex-start;
+      transition: var(--transition-fast);
+    }
+
+    .btn-add-item:hover {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+      background: var(--bg-active-row);
+    }
+
+    /* Media Tab Editor CSS */
+    .media-workspace {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .media-card {
+      background: rgba(148, 163, 184, 0.04);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    @media (max-width: 600px) {
+      .media-card {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+    .media-preview-box {
+      width: 100px;
+      height: 100px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .dark-theme .media-preview-box {
+      background: #000000;
+    }
+
+    .dark-theme .media-preview-box img {
+      filter: invert(1) hue-rotate(180deg) saturate(1.2);
+    }
+
+    .media-preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .media-actions-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-grow: 1;
+    }
+
+    .media-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .media-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .custom-file-upload {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition-fast);
+      align-self: flex-start;
+    }
+
+    .custom-file-upload:hover {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+      background: var(--bg-active-row);
+    }
+
+    .custom-file-upload input {
+      display: none;
+    }
+
+    /* Vector grid auto-fill adjustment */
+    .vector-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 20px;
+    }
+
+    .vector-frame-card {
+      background: rgba(148, 163, 184, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    .vector-frame-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    .vector-frame-card-header .title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .vector-frame-comparer {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .comparer-column {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .comparer-column .label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .vector-frame-card.add-card {
+      border: 2px dashed var(--border-color);
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+      cursor: pointer;
+      background: transparent;
+      transition: var(--transition-fast);
+    }
+
+    .vector-frame-card.add-card:hover {
+      border-color: var(--color-accent);
+      background: var(--bg-active-row);
+    }
+
+    .vector-frame-card.add-card .plus-icon {
+      font-size: 2rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .vector-frame-card.add-card .label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .vector-frame-card .preview {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dark-theme .vector-frame-card .preview {
+      background: #000000;
+    }
+
+    .dark-theme .vector-frame-card .preview img {
+      filter: invert(1) hue-rotate(180deg) saturate(1.2);
+    }
+
+    .vector-frame-card .preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .vector-frame-actions {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .vector-frame-actions label {
+      flex-grow: 1;
+      text-align: center;
+      justify-content: center;
+    }
+
+    .vector-frame-actions .btn-delete-frame {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      background: rgba(239, 68, 68, 0.08);
+      color: var(--color-danger);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .vector-frame-actions .btn-delete-frame:hover {
+      background: var(--color-danger);
+      color: white;
+      border-color: var(--color-danger);
+    }
+
+    /* Sticky Save Action Bar at the Bottom */
+    .save-action-bar {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 48px);
+      max-width: 1152px;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      border-radius: 24px;
+      padding: 16px 24px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      z-index: 999;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      box-sizing: border-box;
+      animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: background-color 0.4s, border-color 0.4s;
+    }
+
+    body.dark-theme .save-action-bar {
+      background: rgba(17, 24, 39, 0.8);
+      border-color: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    @media (max-width: 600px) {
+      .save-action-bar {
+        flex-direction: column;
+        border-radius: 20px;
+        padding: 14px 16px;
+        bottom: 12px;
+        width: calc(100% - 24px);
+      }
+    }
+
+    .status-section {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .status-text {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .save-actions-buttons {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    @media (max-width: 600px) {
+      .save-actions-buttons {
+        width: 100%;
+        justify-content: flex-end;
+      }
+    }
+
+    .btn-secondary-custom {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .btn-secondary-custom:hover {
+      background: rgba(148, 163, 184, 0.08);
+      color: var(--text-primary);
+    }
+
+    .btn-primary-custom {
+      background: linear-gradient(135deg, var(--color-brand), var(--color-accent));
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2);
+      transition: var(--transition-smooth);
+    }
+
+    .btn-primary-custom:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(13, 148, 136, 0.35);
+    }
+
+    .btn-primary-custom:active {
+      transform: translateY(0);
+    }
+
+    @keyframes slideUp {
+      from { transform: translate(-50%, 60px); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+  </style>
+</head>
+<body class="light-theme">
+
+  <div class="admin-container">
+    
+    <!-- Top Header -->
+    <div class="admin-header card">
+      <div class="admin-logo">
+        <div class="icon">PT</div>
+        <div class="admin-title-wrap">
+          <h1>Exercise Studio</h1>
+          <div class="admin-subtitle">Clinical Program Configurator</div>
+        </div>
+      </div>
+      <div class="header-controls" style="align-items: center; gap:12px;">
+        <div id="connection-indicator" class="connection-pill">
+          <div class="dot"></div>
+          <span id="connection-status-text">Checking…</span>
+        </div>
+        <button id="btn-toggle-theme" class="icon-btn" title="Toggle Theme" aria-label="Toggle light or dark theme">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+        <a href="index.html" class="btn-primary" style="padding: 8px 16px; border-radius: 12px; font-size: 0.8rem; width: auto; box-shadow:none;">
+          Return to App
+        </a>
+      </div>
+    </div>
+
+    <!-- Main Workspace Split -->
+    <div class="admin-grid">
+      
+      <!-- Left Sidebar Column: Exercise mini cards list -->
+      <div class="sidebar-card card">
+        <input type="text" id="exercise-search" class="search-input" placeholder="Search exercises…">
+        
+        <div id="sidebar-list-container" class="exercise-mini-list">
+          <!-- Dynamic cards injected via JS -->
+        </div>
+
+        <button id="btn-add-exercise" class="btn-create-new">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Add New Exercise
+        </button>
+      </div>
+
+      <!-- Right Column: Interactive details editor pane -->
+      <div class="editor-card card" id="workspace-editor" style="display:none;">
+        
+        <!-- Editor Header Info -->
+        <div class="editor-header">
+          <div class="editor-header-title">
+            <h2 style="display:flex; align-items:center; gap:8px;">
+              <span id="workspace-title">Seated Upper Trapezius Stretch</span>
+              <button id="btn-copy-slug" style="border:none; background:transparent; cursor:pointer; color:var(--text-muted); opacity:0.6; display:flex; align-items:center; transition:var(--transition-fast);" title="Copy Exercise Slug">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </h2>
+            <div class="slug-line" style="display:flex; align-items:center; gap:6px; margin-top:4px;">
+              <span>Path: <span id="workspace-folder-path">exercises/01-seated-upper-trapezius-stretch</span></span>
+              <button id="btn-copy-path" style="border:none; background:transparent; cursor:pointer; color:var(--text-muted); opacity:0.6; display:flex; align-items:center; transition:var(--transition-fast);" title="Copy Folder Path">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+              <span style="color:var(--text-muted); opacity: 0.3;">|</span>
+              <button id="btn-copy-json" style="border:none; background:transparent; cursor:pointer; color:var(--text-muted); opacity:0.6; display:inline-flex; align-items:center; gap:4px; font-size:0.7rem; transition:var(--transition-fast);" title="Copy Raw Exercise JSON">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                JSON
+              </button>
+            </div>
+          </div>
+          <button id="btn-delete-exercise" class="btn-icon-danger" title="Permanently Delete Exercise">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+          </button>
+        </div>
+
+        <!-- Section Navigation Tabs -->
+        <div class="tab-nav">
+          <button class="editor-tab-btn active" data-target="panel-info">General Info</button>
+          <button class="editor-tab-btn" data-target="panel-dosage">Clinical Dosage</button>
+          <button class="editor-tab-btn" data-target="panel-text">Instructions</button>
+          <button class="editor-tab-btn" data-target="panel-media">Media & Visuals</button>
+        </div>
+
+        <!-- Panel 1: General Info & Metadata -->
+        <div class="form-tab-panel active" id="panel-info">
+          <div class="form-group">
+            <label class="form-label">Exercise Title</label>
+            <input type="text" id="field-title" class="form-input" placeholder="e.g. Seated Cervical Retraction">
+          </div>
+          
+          <div class="form-row-2col">
+            <div class="form-group">
+              <label class="form-label">Clinical Category</label>
+              <select id="field-category" class="form-select">
+                <option value="stretch">Stretch (Holds)</option>
+                <option value="isometric">Isometric (Resisted holds)</option>
+                <option value="mobilization">Mobilization (Dynamic joint motion)</option>
+                <option value="nerve-glide">Nerve Glide (Dynamic continuous flow)</option>
+                <option value="strengthening">Strengthening (Resistance efforts)</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Sort / Order Index (Drag list to reorder)</label>
+              <input type="number" id="field-order" class="form-input" min="1" step="1" readonly style="background: rgba(148, 163, 184, 0.12); cursor: not-allowed; opacity: 0.85;" title="Drag and drop cards in the left sidebar list to change exercise sequence.">
+            </div>
+          </div>
+
+          <div class="toggle-row">
+            <div style="display:flex; flex-direction:column; gap:2px;">
+              <span class="form-label" style="text-transform:none;">Unilateral (One side at a time)</span>
+              <span style="font-size:0.75rem; color:var(--text-muted);">Enables side switches (left side, then right side).</span>
+            </div>
+            <label class="switch-toggle">
+              <input type="checkbox" id="field-unilateral">
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Panel 2: Clinical Dosage Rules -->
+        <div class="form-tab-panel" id="panel-dosage">
+          <button type="button" id="btn-copy-dosage-summary" class="btn-add-item" style="margin-bottom: 8px; align-self: flex-start; gap: 6px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Copy Prescription Summary
+          </button>
+          
+          <div class="toggle-row" style="margin-bottom: 8px;">
+            <div style="display:flex; flex-direction:column; gap:2px;">
+              <span class="form-label" style="text-transform:none;">Prescription Type</span>
+              <span style="font-size:0.75rem; color:var(--text-muted);">Select if this is static holds (e.g. stretches) or dynamic sets/reps.</span>
+            </div>
+            <select id="field-dosage-type" class="form-select" style="width: auto; min-width: 160px;">
+              <option value="hold">Static Hold (30s hold)</option>
+              <option value="reps">Sets and Repetitions</option>
+            </select>
+          </div>
+
+          <!-- Hold settings group -->
+          <div class="form-group dosage-group-hold">
+            <label class="form-label">Hold Time (Seconds)</label>
+            <input type="number" id="field-hold" class="form-input" placeholder="e.g. 30">
+          </div>
+
+          <!-- Reps/Sets settings group -->
+          <div class="form-row-2col dosage-group-reps">
+            <div class="form-group">
+              <label class="form-label">Reps per set</label>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <input type="number" id="field-reps-min" class="form-input" placeholder="Min" min="1">
+                <span style="color:var(--text-muted); font-size:0.8rem;">to</span>
+                <input type="number" id="field-reps-max" class="form-input" placeholder="Max" min="1">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sets per routine</label>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <input type="number" id="field-sets-min" class="form-input" placeholder="Min" min="1">
+                <span style="color:var(--text-muted); font-size:0.8rem;">to</span>
+                <input type="number" id="field-sets-max" class="form-input" placeholder="Max" min="1">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row-2col">
+            <div class="form-group">
+              <label class="form-label">Daily Target (Sessions/Day)</label>
+              <input type="number" id="field-daily" class="form-input" placeholder="e.g. 1" min="1">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Weekly Target (Days/Week)</label>
+              <input type="number" id="field-weekly" class="form-input" placeholder="e.g. 7" min="1" max="7">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Required Equipment (Comma-separated)</label>
+            <input type="text" id="field-equipment" class="form-input" placeholder="e.g. foam roller, table or bed">
+          </div>
+        </div>
+
+        <!-- Panel 3: Patient Instructions & Notes -->
+        <div class="form-tab-panel" id="panel-text">
+          <button type="button" id="btn-copy-routine-card" class="btn-primary-custom" style="padding: 8px 16px; font-size: 0.75rem; align-self: flex-start; margin-bottom: 8px; width: auto; box-shadow: none; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Copy Patient Routine Card
+          </button>
+          
+          <div class="form-group">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label class="form-label">Setup Position</label>
+              <button type="button" class="btn-copy-field" data-target="field-setup" style="border:none; background:transparent; color:var(--text-muted); cursor:pointer; font-size:0.75rem; display:flex; align-items:center; gap:4px; transition:var(--transition-fast);" title="Copy Setup Position Text">Copy</button>
+            </div>
+            <textarea id="field-setup" class="form-textarea" placeholder="Explain the starting posture..."></textarea>
+          </div>
+          
+          <div class="form-group">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label class="form-label">Movement Sequence</label>
+              <button type="button" class="btn-copy-field" data-target="field-movement" style="border:none; background:transparent; color:var(--text-muted); cursor:pointer; font-size:0.75rem; display:flex; align-items:center; gap:4px; transition:var(--transition-fast);" title="Copy Movement Sequence Text">Copy</button>
+            </div>
+            <textarea id="field-movement" class="form-textarea" placeholder="Explain the dynamic motion, engagement, or pull..."></textarea>
+          </div>
+          
+          <div class="form-group">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label class="form-label">Clinician Tip (Optional)</label>
+              <button type="button" class="btn-copy-field" data-target="field-tip" style="border:none; background:transparent; color:var(--text-muted); cursor:pointer; font-size:0.75rem; display:flex; align-items:center; gap:4px; transition:var(--transition-fast);" title="Copy Clinician Tip Text">Copy</button>
+            </div>
+            <textarea id="field-tip" class="form-textarea" placeholder="Add helpful hints to avoid shrugging or arching..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Clinician Handwritten Notes (Annotations)</label>
+            <div id="notes-list-container" class="dynamic-list">
+              <!-- Dynamically populated rows with delete buttons -->
+            </div>
+            <button type="button" id="btn-add-note" class="btn-add-item">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Add Handwritten Note
+            </button>
+          </div>
+        </div>
+
+        <!-- Panel 4: Media, Illustrations & Animation Frames -->
+        <div class="form-tab-panel" id="panel-media">
+          <div class="media-workspace">
+            
+            <!-- Source Image Upload Card -->
+            <div class="media-card">
+              <div class="media-preview-box">
+                <img id="media-source-preview" src="" alt="Clinical Source Photo">
+              </div>
+              <div class="media-actions-box">
+                <div class="media-title">Source Reference Photo</div>
+                <div class="media-desc">The original clinical printout photo (typically JPEG). Used as a comparison guide.</div>
+                <label class="custom-file-upload">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  Upload New Photo
+                  <input type="file" id="upload-source-photo" accept="image/jpeg,image/jpg">
+                </label>
+              </div>
+            </div>
+
+            <!-- Vector Illustration Frames List Section -->
+            <div>
+              <div class="form-label" style="margin-bottom: 10px;">Animated Vector Illustration Frames</div>
+              <div class="vector-grid" id="vector-frames-grid">
+                <!-- Dynamically populated vector cards -->
+                
+                <!-- Add new card -->
+                <div class="vector-frame-card add-card" id="btn-add-vector-frame">
+                  <div class="plus-icon">+</div>
+                  <div class="label">Add Animation Frame</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Loading / Placeholder Screen when no exercise is active -->
+      <div class="editor-card card" id="workspace-placeholder" style="display:flex; justify-content:center; align-items:center; min-height:400px; text-align:center;">
+        <div>
+          <div style="font-size:3rem; margin-bottom:12px;">✏️</div>
+          <h2>No Exercise Selected</h2>
+          <p style="color:var(--text-muted); font-size:0.85rem; max-width:280px; margin: 8px auto 0 auto;">Select an exercise from the left sidebar or click "+ Add New Exercise" to configure its clinical data.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Floating Action Footer Bar (Visible when changes exist) -->
+    <div class="save-action-bar">
+      <div class="status-section">
+        <div class="status-text" id="status-title-text">All changes saved to memory.</div>
+        <div style="font-size:0.75rem; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+          <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--color-brand);" id="status-sub-dot"></span>
+          <span id="status-sub-text">Connected locally</span>
+        </div>
+      </div>
+      <div class="save-actions-buttons">
+        <button id="btn-discard" class="btn-secondary-custom">Discard</button>
+        <button id="btn-save" class="btn-primary-custom">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+          <span id="btn-save-text">Save Changes</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Client-side logic controller module -->
+  <script type="module" src="src/admin.js"></script>
+</body>
+</html>
